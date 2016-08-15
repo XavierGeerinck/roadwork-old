@@ -78,7 +78,8 @@ describe('GET /<model> collection', () => {
         const routeGenerator = Api.getRouteGenerator();
         var spy = sinon.spy(routeGenerator, 'addBearerAuthentication');
 
-        Api.addBearerAuthentication(() => { return true; }, () => {
+        Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); })
+        .then(() => {
             Api.generate(User, {
                 routes: {
                     findAll: {
@@ -101,7 +102,8 @@ describe('GET /<model> collection', () => {
 
         var spy = sinon.spy(routeGenerator, 'addBearerAuthentication');
 
-        Api.addBearerAuthentication((token, callback) => { return callback(null, true, { scope: ['admin' ]}); }, () => {
+        Api.addBearerAuthentication((token, callback) => { return callback(null, true, { scope: [ 'admin' ] }); })
+        .then(() => {
             Api.generate(User, {
                 routes: {
                     findAll: {
@@ -151,7 +153,8 @@ describe('GET /<model> collection', () => {
 
         var spy = sinon.spy(routeGenerator, 'addBearerAuthentication');
 
-        Api.addBearerAuthentication((token, callback) => { return callback(null, false); }, () => {
+        Api.addBearerAuthentication((token, callback) => { return callback(null, false); })
+        .then(() => {
             Api.generate(User, {
                 routes: {
                     findAll: {

@@ -69,10 +69,12 @@ describe('Module', () => {
         const server = require('./helpers/server-hapi').init();
         const Api = require('..')(server);
 
-        Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); }, () => {
-            Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); }, () => {
-                done();
-            });
+        Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); })
+        .then(() => {
+            return Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); });
+        })
+        .then(() => {
+            done();
         });
     });
 });

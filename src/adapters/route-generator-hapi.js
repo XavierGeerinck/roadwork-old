@@ -1,3 +1,5 @@
+const Promise = require('bluebird');
+
 var routeGenerator = function (httpServer, model) {
     this.strategyName = 'bearer-rest-crud-generator';
     this.httpServer = httpServer;
@@ -6,24 +8,28 @@ var routeGenerator = function (httpServer, model) {
 routeGenerator.prototype.addBearerAuthentication = function (validateFunction, callback) {
     var self = this;
 
-    this.httpServer.register({
-        register: require('hapi-auth-bearer-simple'),
-        options: {}
-    }, { once: true }, (err) => {
-        //if (err) {
-        //    throw err;
-        //}
+    return new Promise((resolve, reject) => {
+        this.httpServer.register({
+            register: require('hapi-auth-bearer-simple'),
+            options: {}
+        }, { once: true }, (err) => {
+            //if (err) {
+            //    throw err;
+            //}
 
-        try {
-            this.httpServer.auth.strategy(self.strategyName, 'bearerAuth', {
-                validateFunction: validateFunction
-            });
-        } catch (err) {
-            // Ignore error, it can happen when we call the addBearerAuthentication function twice
-        }
+            try {
+                this.httpServer.auth.strategy(self.strategyName, 'bearerAuth', {
+                    validateFunction: validateFunction
+                });
 
-        console.info('--> Added bearer authentication');
-        return callback();
+                console.info('--> Added bearer authentication');
+            } catch (err) {
+                console.info('--> [IGNORED] Bearer authentication already registered, ignoring')
+                // Ignore error, it can happen when we call the addBearerAuthentication function twice
+            }
+
+            return resolve();
+        });
     });
 };
 

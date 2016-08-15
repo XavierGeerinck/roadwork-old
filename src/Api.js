@@ -1,5 +1,4 @@
 var Joi = require('joi');
-var Promise = require('bluebird');
 var Model = require('./Model');
 var RouteGenerator = require('./adapters/route-generator-hapi');
 var generateOptionsSchema = require('./schemes/generateOptions');
@@ -31,10 +30,8 @@ Api.prototype.getRouteGenerator = function () {
     return this.routeGenerator;
 };
 
-Api.prototype.addBearerAuthentication = function (validateFunction, callback) {
-    this.routeGenerator.addBearerAuthentication(validateFunction, () => {
-        return callback();
-    });
+Api.prototype.addBearerAuthentication = function (validateFunction) {
+    return this.routeGenerator.addBearerAuthentication(validateFunction);
 };
 
 Api.prototype.getServer = function () {
