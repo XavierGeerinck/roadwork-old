@@ -4,14 +4,6 @@ var RouteGenerator = require('./adapters/route-generator-hapi');
 var generateOptionsSchema = require('./schemes/generateOptions');
 
 /**
- * TODO: Ultimate goal of the lib: connect a Database, and automatically get Rest endpoints
- * DONE: Allow routes to be limited to specific roles
- * DONE: Add ability to turn off certain routes
- * TODO: Create option to get relations until a specified level (example 3)
- * TODO: Advanced filters
- * TODO: Add user support out of the box? (Could allow us for better roles, provide password on delete, ...)
- * TODO: Add exists route
- * TODO: Add count route
  * @param server
  * @constructor
  */
