@@ -1,6 +1,6 @@
 {
   "name": "rest-crud-generator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "REST API Generator for Bookshelf.js",
   "homepage": "https://github.com/mikec/kalamata",
   "bugs": "https://github.com/thebillkidy/rest-crud-generator/issues",
