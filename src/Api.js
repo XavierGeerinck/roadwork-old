@@ -1,4 +1,5 @@
 var Joi = require('joi');
+var Promise = require('bluebird');
 var Model = require('./Model');
 var RouteGenerator = require('./adapters/route-generator-hapi');
 var generateOptionsSchema = require('./schemes/generateOptions');

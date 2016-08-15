@@ -64,4 +64,15 @@ describe('Module', () => {
 
         done();
     });
+
+    it('should still work with bearer authentication if the plugin is already registered', (done) => {
+        const server = require('./helpers/server-hapi').init();
+        const Api = require('..')(server);
+
+        Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); }, () => {
+            Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); }, () => {
+                done();
+            });
+        });
+    });
 });

@@ -1,22 +1,29 @@
 var routeGenerator = function (httpServer, model) {
+    this.strategyName = 'bearer-rest-crud-generator';
     this.httpServer = httpServer;
 };
 
 routeGenerator.prototype.addBearerAuthentication = function (validateFunction, callback) {
+    var self = this;
+
     this.httpServer.register({
         register: require('hapi-auth-bearer-simple'),
         options: {}
-    }, (err) => {
+    }, { once: true }, (err) => {
         //if (err) {
         //    throw err;
         //}
 
-        this.httpServer.auth.strategy('bearer', 'bearerAuth', {
-            validateFunction: validateFunction
-        });
+        try {
+            this.httpServer.auth.strategy(self.strategyName, 'bearerAuth', {
+                validateFunction: validateFunction
+            });
+        } catch (err) {
+            // Ignore error, it can happen when we call the addBearerAuthentication function twice
+        }
 
         console.info('--> Added bearer authentication');
-        callback();
+        return callback();
     });
 };
 
@@ -32,7 +39,7 @@ routeGenerator.prototype.createFindAllRoute = function (model, rolesAllowed) {
     if (rolesAllowed) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: 'bearer',
+            strategy: this.strategyName,
             scope: rolesAllowed
         };
     }
@@ -54,7 +61,7 @@ routeGenerator.prototype.createFindOneRoute = function (model, rolesAllowed) {
     if (rolesAllowed) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: 'bearer',
+            strategy: this.strategyName,
             scope: rolesAllowed
         };
     }
@@ -75,7 +82,7 @@ routeGenerator.prototype.createCreateRoute = function (model, rolesAllowed) {
     if (rolesAllowed) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: 'bearer',
+            strategy: this.strategyName,
             scope: rolesAllowed
         };
     }
@@ -97,7 +104,7 @@ routeGenerator.prototype.createUpdateRoute = function (model, rolesAllowed) {
     if (rolesAllowed) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: 'bearer',
+            strategy: this.strategyName,
             scope: rolesAllowed
         };
     }
@@ -118,7 +125,7 @@ routeGenerator.prototype.createDeleteRoute = function (model, rolesAllowed) {
     if (rolesAllowed) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: 'bearer',
+            strategy: this.strategyName,
             scope: rolesAllowed
         };
     }
