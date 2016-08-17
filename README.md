@@ -4,11 +4,12 @@
 * Turn of the generation of specified routes
 
 # Usage
+## Installation
 1. Require the library `const Api = require('rest-crud-generator')`
 2. Pass the `Bookshelf` models to the generate method to create the API calls, with: `Api.generate(User)`
 
-**Adding Authentication:**
-
+## Authentication
+### Enable
 To enable authentication and change the allowedRole array, run: `Api.addBearerAuthentication(validateFunction)`, the validateFunction looks like this:
 
 ```
@@ -18,6 +19,23 @@ function (token, callback) {
     
     // error authenticating
     return callback(null, false);
+}
+```
+
+### Configure route access
+As soon as the authentication has been enabled, you will be able to fine tune access towards a single route. This can be done by specifying the `allowedRoles` in the configuration object (see `API generate(model, options)`).
+
+This will also create a new **dynamic** role called *$owner* which will allow access to the requested resource only if the currently authenticated user owns it. This is usefull in cases such as updating the user\'s own model, ... 
+
+Example:
+
+```json
+{
+    routes: {
+        update: {
+            allowedRoles: [ '$owner' ]
+        }
+    }
 }
 ```
 
@@ -109,6 +127,9 @@ Ultimate goal of the lib: connect a Database, and automatically get Rest endpoin
     * TODO: Only allow access to a specific resource (example: a user can only delete his/her own user object)
           * Probably by checking the user_id in a table and matching it to the current user
           * Will need user support in this lib then (atleast basic user support?)
+          * current thinking: add dynamic role ($owner, ...) 
+          * TODO: The validateFunction should check for the role == $owner, and should then check if the user_id == the current logged in user
+    * TODO: Include the user functionality in the library (or maybe a separate library?)
 * General Priority
     * TODO: Create option to get relations until a specified level (example 3)
     * TODO: Advanced filters
