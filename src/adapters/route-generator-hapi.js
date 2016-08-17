@@ -42,6 +42,12 @@ routeGenerator.prototype.createFindAllRoute = function (model, rolesAllowed) {
         }
     };
 
+    // If rolesAllowed is empty, do not register the route! this means nobody has access
+    // TODO: Maybe allow the application access? (through the 'application' role?)
+    if (rolesAllowed && rolesAllowed.length == 0) {
+        return;
+    }
+
     if (rolesAllowed) {
         routeOptions.config = {};
         routeOptions.config.auth = {
@@ -63,6 +69,11 @@ routeGenerator.prototype.createFindOneRoute = function (model, rolesAllowed) {
         }
     };
 
+    // If rolesAllowed is empty, do not register the route! this means nobody has access
+    // TODO: Maybe allow the application access? (through the 'application' role?)
+    if (rolesAllowed && rolesAllowed.length == 0) {
+        return;
+    }
 
     if (rolesAllowed) {
         routeOptions.config = {};
@@ -84,6 +95,11 @@ routeGenerator.prototype.createCreateRoute = function (model, rolesAllowed) {
         }
     };
 
+    // If rolesAllowed is empty, do not register the route! this means nobody has access
+    // TODO: Maybe allow the application access? (through the 'application' role?)
+    if (rolesAllowed && rolesAllowed.length == 0) {
+        return;
+    }
 
     if (rolesAllowed) {
         routeOptions.config = {};
@@ -106,6 +122,11 @@ routeGenerator.prototype.createUpdateRoute = function (model, rolesAllowed) {
         }
     };
 
+    // If rolesAllowed is empty, do not register the route! this means nobody has access
+    // TODO: Maybe allow the application access? (through the 'application' role?)
+    if (rolesAllowed && rolesAllowed.length == 0) {
+        return;
+    }
 
     if (rolesAllowed) {
         routeOptions.config = {};
@@ -127,6 +148,12 @@ routeGenerator.prototype.createDeleteRoute = function (model, rolesAllowed) {
             reply(model.delete(id));
         }
     };
+
+    // If rolesAllowed is empty, do not register the route! this means nobody has access
+    // TODO: Maybe allow the application access? (through the 'application' role?)
+    if (rolesAllowed && rolesAllowed.length == 0) {
+        return;
+    }
 
     if (rolesAllowed) {
         routeOptions.config = {};
