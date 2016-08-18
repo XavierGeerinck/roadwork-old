@@ -1,16 +1,18 @@
 const Promise = require('bluebird');
 
-var routeGenerator = function (httpServer, model) {
-    this.strategyName = 'bearer-rest-crud-generator';
+var routeGenerator = function (httpServer) {
     this.httpServer = httpServer;
+    this.authentication = null;
 };
 
-routeGenerator.prototype.addBearerAuthentication = function (validateFunction, callback) {
+routeGenerator.prototype.addAuthentication = function (library) {
+    this.authentication = library;
+
     var self = this;
 
     return new Promise((resolve, reject) => {
         this.httpServer.register({
-            register: require('hapi-auth-bearer-simple'),
+            register: library.getHapiFrameworkInterface(),
             options: {}
         }, { once: true }, (err) => {
             //if (err) {
@@ -18,14 +20,11 @@ routeGenerator.prototype.addBearerAuthentication = function (validateFunction, c
             //}
 
             try {
-                this.httpServer.auth.strategy(self.strategyName, 'bearerAuth', {
-                    validateFunction: validateFunction
-                });
-
-                console.info('--> Added bearer authentication');
+                this.httpServer.auth.strategy(library.getStrategyName(), library.getStrategyName());
+                console.info('--> Added authentication: ' + library.getStrategyName());
             } catch (err) {
-                console.info('--> [IGNORED] Bearer authentication already registered, ignoring')
-                // Ignore error, it can happen when we call the addBearerAuthentication function twice
+                console.info('--> [IGNORED] ' +  library.getStrategyName() + '  authentication already registered, ignoring');
+                // Ignore error, it can happen when we call the addAuthentication function twice
             }
 
             return resolve();
@@ -48,10 +47,10 @@ routeGenerator.prototype.createFindAllRoute = function (model, rolesAllowed) {
         return;
     }
 
-    if (rolesAllowed) {
+    if (rolesAllowed && this.authentication) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: this.strategyName,
+            strategy: this.authentication.getStrategyName(),
             scope: rolesAllowed
         };
     }
@@ -75,14 +74,14 @@ routeGenerator.prototype.createFindOneRoute = function (model, rolesAllowed) {
         return;
     }
 
-    if (rolesAllowed) {
+    if (rolesAllowed && this.authentication) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: this.strategyName,
+            strategy: this.authentication.getStrategyName(),
             scope: rolesAllowed
         };
     }
-
+console.log(routeOptions);
     this.httpServer.route(routeOptions);
 };
 
@@ -101,10 +100,10 @@ routeGenerator.prototype.createCreateRoute = function (model, rolesAllowed) {
         return;
     }
 
-    if (rolesAllowed) {
+    if (rolesAllowed && this.authentication) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: this.strategyName,
+            strategy: this.authentication.getStrategyName(),
             scope: rolesAllowed
         };
     }
@@ -128,10 +127,10 @@ routeGenerator.prototype.createUpdateRoute = function (model, rolesAllowed) {
         return;
     }
 
-    if (rolesAllowed) {
+    if (rolesAllowed && this.authentication) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: this.strategyName,
+            strategy: this.authentication.getStrategyName(),
             scope: rolesAllowed
         };
     }
@@ -155,10 +154,10 @@ routeGenerator.prototype.createDeleteRoute = function (model, rolesAllowed) {
         return;
     }
 
-    if (rolesAllowed) {
+    if (rolesAllowed && this.authentication) {
         routeOptions.config = {};
         routeOptions.config.auth = {
-            strategy: this.strategyName,
+            strategy: this.authentication.getStrategyName(),
             scope: rolesAllowed
         };
     }

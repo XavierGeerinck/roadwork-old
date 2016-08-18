@@ -69,9 +69,9 @@ describe('Module', () => {
         const server = require('./helpers/server-hapi').init();
         const Api = require('..')(server);
 
-        Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); })
+        Api.addAuthentication(require('roadwork-authentication'), {})
         .then(() => {
-            return Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); });
+            return Api.addAuthentication(require('roadwork-authentication'), {})
         })
         .then(() => {
             done();

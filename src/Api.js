@@ -12,6 +12,7 @@ var Api = function (server) {
         throw new Error('No http engine given!');
     }
 
+    this.authentication = null; // The authentication plugin used
     this.server = server;
     this.models = [];
 
@@ -22,8 +23,31 @@ Api.prototype.getRouteGenerator = function () {
     return this.routeGenerator;
 };
 
-Api.prototype.addBearerAuthentication = function (validateFunction) {
-    return this.routeGenerator.addBearerAuthentication(validateFunction);
+/**
+ * This should initiate the authentication requirements
+ * @param library
+ * @param dbConfig
+ */
+Api.prototype.addAuthentication = function (library, dbConfig) {
+    if (!library) {
+        throw new Error('Incorrect library');
+    }
+
+    if (!dbConfig) {
+        throw new Error('Missing database connection configuration');
+    }
+
+    // TODO: Test if we can connect with the config given
+    //dbUtil.connect()
+
+    // Create a new authentication instance
+    this.authentication = new library(this.server, dbConfig);
+
+    // Add it to the routegenerator
+    this.routeGenerator.addAuthentication(this.authentication);
+
+    // Call the check to see if the tables exist
+    return this.authentication.createRequiredTables();
 };
 
 Api.prototype.getServer = function () {

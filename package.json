@@ -1,17 +1,18 @@
 {
-  "name": "rest-crud-generator",
-  "version": "0.1.1",
-  "description": "REST API Generator for Bookshelf.js",
-  "homepage": "https://github.com/mikec/kalamata",
-  "bugs": "https://github.com/thebillkidy/rest-crud-generator/issues",
+  "name": "roadwork",
+  "version": "0.1.0",
+  "description": "REST API Generator for Bookshelf.js and Hapijs",
+  "homepage": "https://github.com/thebillkidy/roadwork",
+  "bugs": "https://github.com/thebillkidy/roadwork/issues",
   "author": "Xavier Geerinck",
   "repository": {
     "type": "git",
-    "url": "git://github.com/thebillkidy/rest-crud-generator.git"
+    "url": "git://github.com/thebillkidy/roadwork.git"
   },
   "keywords": [
     "bookshelf",
     "knex",
+    "hapi.js",
     "node",
     "REST",
     "API"
