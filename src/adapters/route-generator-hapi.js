@@ -43,11 +43,11 @@ routeGenerator.prototype.createFindAllRoute = function (model, rolesAllowed) {
 
     // If rolesAllowed is empty, do not register the route! this means nobody has access
     // TODO: Maybe allow the application access? (through the 'application' role?)
-    if (rolesAllowed && rolesAllowed.length == 0) {
+    if (this.authentication && rolesAllowed && rolesAllowed.length == 0) {
         return;
     }
 
-    if (rolesAllowed && this.authentication) {
+    if (this.authentication && rolesAllowed) {
         routeOptions.config = {};
         routeOptions.config.auth = {
             strategy: this.authentication.getStrategyName(),

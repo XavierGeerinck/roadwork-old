@@ -77,4 +77,28 @@ describe('Module', () => {
             done();
         });
     });
+
+    it('should throw an error when adding authentication if no library plugin was specified', (done) => {
+        const server = require('./helpers/server-hapi').init();
+        const Api = require('..')(server);
+
+        Api.addAuthentication(null, {})
+        .catch((err) => {
+            console.log(err);
+            expect(err.message).to.equal("Incorrect library");
+            done();
+        });
+    });
+
+    it('should throw an error when no database configuration was passed', (done) => {
+        const server = require('./helpers/server-hapi').init();
+        const Api = require('..')(server);
+
+        Api.addAuthentication(require('roadwork-authentication'))
+            .catch((err) => {
+                console.log(err);
+                expect(err.message).to.equal("Missing database connection configuration");
+                done();
+            });
+    });
 });

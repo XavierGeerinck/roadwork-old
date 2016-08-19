@@ -30,11 +30,11 @@ Api.prototype.getRouteGenerator = function () {
  */
 Api.prototype.addAuthentication = function (library, dbConfig) {
     if (!library) {
-        throw new Error('Incorrect library');
+        return Promise.reject(new Error('Incorrect library'));
     }
 
     if (!dbConfig) {
-        throw new Error('Missing database connection configuration');
+        return Promise.reject(new Error('Missing database connection configuration'));
     }
 
     // TODO: Test if we can connect with the config given

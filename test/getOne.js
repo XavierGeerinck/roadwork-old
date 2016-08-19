@@ -97,166 +97,54 @@ describe('GET /<model> collection', () => {
         });
     });
 
-    //it('should limit to the specified role, if one is given and return the result when we do have access', (done) => {
-    //    const server = require('./helpers/server-hapi').init();
-    //    const Api = require('..')(server);
-    //    const routeGenerator = Api.getRouteGenerator();
-    //
-    //    var spy = sinon.spy(routeGenerator, 'addBearerAuthentication');
-    //
-    //    Api.addBearerAuthentication((token, callback) => { return callback(null, true, { scope: [ 'admin' ] }); })
-    //    .then(() => {
-    //        Api.generate(User, {
-    //            routes: {
-    //                findOne: {
-    //                    allowedRoles: [ 'admin' ]
-    //                }
-    //            }
-    //        });
-    //
-    //        const models = Api.getModels();
-    //        var spy2 = sinon.spy(models[0], 'findOneById'); // should not get called!
-    //
-    //        // Perform our normal routine
-    //        const routeName =  '/' + pluralize(User.forge().tableName);
-    //        server.start((err) => {
-    //            expect(err).to.not.exist();
-    //
-    //            // Note: The calls will fail since we have no connection to the database!
-    //            //       We just want to check if the 'createObject' function gets called
-    //            let request = {
-    //                method: 'GET',
-    //                url: routeName + '/1',
-    //                headers: {
-    //                    Authorization: 'Bearer <SOMETOKEN>'
-    //                },
-    //                payload: {
-    //                    id: '1',
-    //                    first_name: 'Xavier',
-    //                    last_name: 'Geerinck'
-    //                }
-    //            };
-    //
-    //            server.inject(request, (res) => {
-    //                expect(res.payload).to.exist();
-    //
-    //                console.log(res.payload);
-    //
-    //                expect(spy.callCount).to.equal(1);
-    //                expect(spy2.callCount).to.equal(1);
-    //                spy.restore();
-    //                spy2.restore();
-    //
-    //                done();
-    //            });
-    //        });
-    //    });
-    //});
-    //
-    //it('should limit to the specified role, if one is given and return Unauthorized when we do not have access', (done) => {
-    //    const server = require('./helpers/server-hapi').init();
-    //    const Api = require('..')(server);
-    //    const routeGenerator = Api.getRouteGenerator();
-    //
-    //    var spy = sinon.spy(routeGenerator, 'addBearerAuthentication');
-    //
-    //    Api.addBearerAuthentication((token, callback) => { return callback(null, false); })
-    //    .then(() => {
-    //        Api.generate(User, {
-    //            routes: {
-    //                findOne: {
-    //                    allowedRoles: [ 'admin' ]
-    //                }
-    //            }
-    //        });
-    //
-    //        const models = Api.getModels();
-    //        var spy2 = sinon.spy(models[0], 'findOneById'); // should not get called!
-    //
-    //        // Perform our normal routine
-    //        const routeName =  '/' + pluralize(User.forge().tableName);
-    //        server.start((err) => {
-    //            expect(err).to.not.exist();
-    //
-    //            // Note: The calls will fail since we have no connection to the database!
-    //            //       We just want to check if the 'createObject' function gets called
-    //            let request = {
-    //                method: 'GET',
-    //                url: routeName + '/1',
-    //                headers: {
-    //                    Authorization: 'Bearer <SOMETOKEN>'
-    //                },
-    //                payload: {
-    //                    id: '1',
-    //                    first_name: 'Xavier',
-    //                    last_name: 'Geerinck'
-    //                }
-    //            };
-    //
-    //            server.inject(request, (res) => {
-    //                expect(res.payload).to.exist();
-    //                expect(JSON.parse(res.payload)).to.exist();
-    //                expect(JSON.parse(res.payload).error).to.equal('Unauthorized');
-    //
-    //                expect(spy.callCount).to.equal(1);
-    //                expect(spy2.callCount).to.equal(0); // Create should not be called if unauthorized
-    //                spy.restore();
-    //                spy2.restore();
-    //
-    //                done();
-    //            });
-    //        });
-    //    });
-    //});
-    //
-    //it('should deny access if allowedRoles = [], only if allowedRoles is undefined it should allow access', (done) => {
-    //    const server = require('./helpers/server-hapi').init();
-    //    const Api = require('..')(server);
-    //    const routeGenerator = Api.getRouteGenerator();
-    //
-    //    var spy = sinon.spy(routeGenerator, 'addBearerAuthentication');
-    //
-    //    Api.addBearerAuthentication((token, callback) => { return callback(null, false); })
-    //    .then(() => {
-    //        Api.generate(User, {
-    //            routes: {
-    //                findOne: {
-    //                    allowedRoles: [ ]
-    //                }
-    //            }
-    //        });
-    //
-    //        const models = Api.getModels();
-    //        var spy2 = sinon.spy(models[0], 'findOneById'); // should not get called!
-    //
-    //        // Perform our normal routine
-    //        const routeName =  '/' + pluralize(User.forge().tableName);
-    //        server.start((err) => {
-    //            expect(err).to.not.exist();
-    //
-    //            // Note: The calls will fail since we have no connection to the database!
-    //            //       We just want to check if the 'createObject' function gets called
-    //            let request = {
-    //                method: 'GET',
-    //                url: routeName + '/1',
-    //                headers: {
-    //                    Authorization: 'Bearer <SOMETOKEN>'
-    //                }
-    //            };
-    //
-    //            server.inject(request, (res) => {
-    //                expect(res.payload).to.exist();
-    //                expect(JSON.parse(res.payload)).to.exist();
-    //                expect(JSON.parse(res.payload).error).to.equal('Not Found');
-    //
-    //                expect(spy.callCount).to.equal(1);
-    //                expect(spy2.callCount).to.equal(0); // Create should not be called if unauthorized
-    //                spy.restore();
-    //                spy2.restore();
-    //
-    //                done();
-    //            });
-    //        });
-    //    });
-    //});
+    it('should deny access if allowedRoles = [], only if allowedRoles is undefined it should allow access', (done) => {
+        const server = require('./helpers/server-hapi').init();
+        const Api = require('..')(server);
+        const routeGenerator = Api.getRouteGenerator();
+
+        var spy = sinon.spy(routeGenerator, 'addAuthentication');
+
+        Api.addAuthentication(require('roadwork-authentication'), {})
+        .then(() => {
+            Api.generate(User, {
+                routes: {
+                    findOne: {
+                        allowedRoles: [ ]
+                    }
+                }
+            });
+
+            const models = Api.getModels();
+            var spy2 = sinon.spy(models[0], 'findOneById'); // should not get called!
+
+            // Perform our normal routine
+            const routeName =  '/' + pluralize(User.forge().tableName);
+            server.start((err) => {
+                expect(err).to.not.exist();
+
+                // Note: The calls will fail since we have no connection to the database!
+                //       We just want to check if the 'createObject' function gets called
+                let request = {
+                    method: 'GET',
+                    url: routeName + '/1',
+                    headers: {
+                        Authorization: 'Bearer <SOMETOKEN>'
+                    }
+                };
+
+                server.inject(request, (res) => {
+                    expect(res.payload).to.exist();
+                    expect(JSON.parse(res.payload)).to.exist();
+                    expect(JSON.parse(res.payload).error).to.equal('Not Found');
+
+                    expect(spy.callCount).to.equal(1);
+                    expect(spy2.callCount).to.equal(0); // Create should not be called if unauthorized
+                    spy.restore();
+                    spy2.restore();
+
+                    done();
+                });
+            });
+        });
+    });
 });
