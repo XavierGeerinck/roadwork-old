@@ -81,7 +81,7 @@ routeGenerator.prototype.createFindOneRoute = function (model, rolesAllowed) {
             scope: rolesAllowed
         };
     }
-console.log(routeOptions);
+
     this.httpServer.route(routeOptions);
 };
 

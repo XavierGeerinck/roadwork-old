@@ -10,17 +10,7 @@
 
 ## Authentication
 ### Enable
-To enable authentication and change the allowedRole array, run: `Api.addBearerAuthentication(validateFunction)`, the validateFunction looks like this:
-
-```
-function (token, callback) { 
-    // correct authentication
-    return callback(null, true, {});
-    
-    // error authenticating
-    return callback(null, false);
-}
-```
+To enable authentication, the only thing you need to do is call the `Api.addAuthentication(authenticationLibrary)` object. This will automatically create the user and user_session tables if they do not exist yet.
 
 ### Configure route access
 As soon as the authentication has been enabled, you will be able to fine tune access towards a single route. This can be done by specifying the `allowedRoles` in the configuration object (see `API generate(model, options)`).

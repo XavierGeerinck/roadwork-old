@@ -84,8 +84,7 @@ describe('Module', () => {
 
         Api.addAuthentication(null, {})
         .catch((err) => {
-            console.log(err);
-            expect(err.message).to.equal("Incorrect library");
+            expect(err.message).to.equal("Missing the authenticationLibrary");
             done();
         });
     });
@@ -95,10 +94,9 @@ describe('Module', () => {
         const Api = require('..')(server);
 
         Api.addAuthentication(require('roadwork-authentication'))
-            .catch((err) => {
-                console.log(err);
-                expect(err.message).to.equal("Missing database connection configuration");
-                done();
-            });
+        .catch((err) => {
+            expect(err.message).to.equal("Missing the bookshelf object");
+            done();
+        });
     });
 });

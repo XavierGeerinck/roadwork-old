@@ -25,29 +25,32 @@ Api.prototype.getRouteGenerator = function () {
 
 /**
  * This should initiate the authentication requirements
- * @param library
- * @param dbConfig
+ * @param authenticationLibrary
+ * @param bookshelf
  */
-Api.prototype.addAuthentication = function (library, dbConfig) {
-    if (!library) {
-        return Promise.reject(new Error('Incorrect library'));
-    }
+Api.prototype.addAuthentication = function (authenticationLibrary, bookshelf) {
+    return new Promise((resolve, reject) => {
+        if (!authenticationLibrary) {
+            return reject(new Error('Missing the authenticationLibrary'));
+        }
 
-    if (!dbConfig) {
-        return Promise.reject(new Error('Missing database connection configuration'));
-    }
+        if (!bookshelf) {
+            return reject(new Error('Missing the bookshelf object'));
+        }
 
-    // TODO: Test if we can connect with the config given
-    //dbUtil.connect()
+        // Create a new authentication instance
+        this.authentication = new authenticationLibrary(this.server, bookshelf);
 
-    // Create a new authentication instance
-    this.authentication = new library(this.server, dbConfig);
+        // Inform the route generator that we have authentication!
+        this.routeGenerator.addAuthentication(this.authentication);
 
-    // Add it to the routegenerator
-    this.routeGenerator.addAuthentication(this.authentication);
-
-    // Call the check to see if the tables exist
-    return this.authentication.createRequiredTables();
+        // Call the check to see if the tables exist and create them if needed
+        this.authentication.checkRequiredScheme()
+        .then(function (results) {
+            console.info('[x] Database scheme is valid');
+            return resolve();
+        });
+    });
 };
 
 Api.prototype.getServer = function () {
