@@ -19,6 +19,10 @@ Model.prototype.getBaseRouteName = function () {
     return this.baseRoute;
 };
 
+Model.prototype.findAllByUserId = function (userId) {
+    return this.baseModel.where('user_id', userId).fetchAll();
+};
+
 Model.prototype.findAll = function () {
     return this.baseModel.fetchAll();
 };
