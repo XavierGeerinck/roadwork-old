@@ -10,17 +10,7 @@
 
 ## Authentication
 ### Enable
-To enable authentication and change the allowedRole array, run: `Api.addBearerAuthentication(validateFunction)`, the validateFunction looks like this:
-
-```
-function (token, callback) { 
-    // correct authentication
-    return callback(null, true, {});
-    
-    // error authenticating
-    return callback(null, false);
-}
-```
+To enable authentication, the only thing you need to do is call the `Api.addAuthentication(authenticationLibrary)` object. This will automatically create the user and user_session tables if they do not exist yet.
 
 ### Configure route access
 As soon as the authentication has been enabled, you will be able to fine tune access towards a single route. This can be done by specifying the `allowedRoles` in the configuration object (see `API generate(model, options)`).
@@ -119,25 +109,3 @@ Routes are generated on the plural name of the base model separated by _ on the 
     * Example: the classes `CarEngine`, `CarModel`, `CarBody`, ... that we combine in the `Car Facade` which has a method: `assembleCar``
 * **spies:** Are used to confirm that a function is called, these are used in the tests.
     * Example: Did we call the ORM functions, the Route registration functionsm ...
-    
-# TODO
-Ultimate goal of the lib: connect a Database, and automatically get Rest endpoints
-
-* High Priority
-    * TODO: Only allow access to a specific resource (example: a user can only delete his/her own user object)
-          * Probably by checking the user_id in a table and matching it to the current user
-          * Will need user support in this lib then (atleast basic user support?)
-          * current thinking: add dynamic role ($owner, ...) 
-          * TODO: The validateFunction should check for the role == $owner, and should then check if the user_id == the current logged in user
-    * TODO: Include the user functionality in the library (or maybe a separate library?)
-* General Priority
-    * TODO: Create option to get relations until a specified level (example 3)
-    * TODO: Advanced filters
-    * TODO: Add user support out of the box? (Could allow us for better roles, provide password on delete, ...)
-    * TODO: Add exists route
-    * TODO: Add count route
-    * TODO: Specify base path of the routes (that way it can work with an already existing API)
-    * TODO: Add password verification for certain routes (example: user update/delete)
-* Backlog
-    * DONE: Allow routes to be limited to specific roles
-    * DONE: Add ability to turn off certain routes

@@ -25,7 +25,6 @@ describe('Module', () => {
 
     it('should return an error if no server object was passed', (done) => {
         try {
-
             const Api = require('..')();
         } catch (err) {
             expect(err.message).to.equal('No http engine given!');
@@ -65,15 +64,59 @@ describe('Module', () => {
         done();
     });
 
+    it('should use a authentication plugin if one is added through addAuthentication', (done) => {
+        const server = require('./helpers/server-hapi').init();
+        const Api = require('..')(server);
+
+        const roadworkAuthentication = require('roadwork-authentication');
+        const checkRequiredSchemeStub = sinon.stub(roadworkAuthentication.prototype, 'checkRequiredScheme', function () { return Promise.resolve(); });
+
+        Api.addAuthentication(roadworkAuthentication, {})
+        .then(() => {
+            checkRequiredSchemeStub.restore();
+            sinon.assert.calledWith(checkRequiredSchemeStub);
+
+            done();
+        });
+    });
+
     it('should still work with bearer authentication if the plugin is already registered', (done) => {
         const server = require('./helpers/server-hapi').init();
         const Api = require('..')(server);
 
-        Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); })
+        const roadworkAuthentication = require('roadwork-authentication');
+        const checkRequiredSchemeStub = sinon.stub(roadworkAuthentication.prototype, 'checkRequiredScheme', function () { return Promise.resolve(); });
+
+        Api.addAuthentication(require('roadwork-authentication'), {})
         .then(() => {
-            return Api.addBearerAuthentication((token, callback) => { return callback(null, true, {}); });
+            return Api.addAuthentication(require('roadwork-authentication'), {})
         })
         .then(() => {
+            checkRequiredSchemeStub.restore();
+            sinon.assert.calledWith(checkRequiredSchemeStub);
+
+            done();
+        });
+    });
+
+    it('should throw an error when adding authentication if no library plugin was specified', (done) => {
+        const server = require('./helpers/server-hapi').init();
+        const Api = require('..')(server);
+
+        Api.addAuthentication(null, {})
+        .catch((err) => {
+            expect(err.message).to.equal("Missing the authenticationLibrary");
+            done();
+        });
+    });
+
+    it('should throw an error when no database configuration was passed', (done) => {
+        const server = require('./helpers/server-hapi').init();
+        const Api = require('..')(server);
+
+        Api.addAuthentication(require('roadwork-authentication'))
+        .catch((err) => {
+            expect(err.message).to.equal("Missing the bookshelf object");
             done();
         });
     });

@@ -12,6 +12,7 @@ var Api = function (server) {
         throw new Error('No http engine given!');
     }
 
+    this.authentication = null; // The authentication plugin used
     this.server = server;
     this.models = [];
 
@@ -22,8 +23,34 @@ Api.prototype.getRouteGenerator = function () {
     return this.routeGenerator;
 };
 
-Api.prototype.addBearerAuthentication = function (validateFunction) {
-    return this.routeGenerator.addBearerAuthentication(validateFunction);
+/**
+ * This should initiate the authentication requirements
+ * @param authenticationLibrary
+ * @param bookshelf
+ */
+Api.prototype.addAuthentication = function (authenticationLibrary, bookshelf) {
+    return new Promise((resolve, reject) => {
+        if (!authenticationLibrary) {
+            return reject(new Error('Missing the authenticationLibrary'));
+        }
+
+        if (!bookshelf) {
+            return reject(new Error('Missing the bookshelf object'));
+        }
+
+        // Create a new authentication instance
+        this.authentication = new authenticationLibrary(this.server, bookshelf);
+
+        // Inform the route generator that we have authentication!
+        this.routeGenerator.addAuthentication(this.authentication);
+
+        // Call the check to see if the tables exist and create them if needed
+        this.authentication.checkRequiredScheme()
+        .then(function (results) {
+            console.info('[x] Database scheme is valid');
+            return resolve();
+        });
+    });
 };
 
 Api.prototype.getServer = function () {
@@ -64,41 +91,29 @@ Api.prototype.generate = function (baseModel, options) {
         console.info('creating REST routes for ' + model.getTableName() + ':');
         if (options.routes.findAll.isEnabled) {
             this.routeGenerator.createFindAllRoute(model, options.routes.findAll.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created GET /' + model.getBaseRouteName() + ' for: ' + allowedRoles);
+            console.info('--> created GET /' + model.getBaseRouteName() + ' for: ' + options.routes.findAll.allowedRoles);
         }
 
         if (options.routes.findOne.isEnabled) {
             this.routeGenerator.createFindOneRoute(model, options.routes.findOne.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created GET /' + model.getBaseRouteName() + '/{id}' + ' for: ' + allowedRoles);
+            console.info('--> created GET /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.findOne.allowedRoles);
         }
 
         if (options.routes.create.isEnabled) {
             this.routeGenerator.createCreateRoute(model, options.routes.create.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created POST /' + model.getBaseRouteName() + ' for: ' + allowedRoles);
+            console.info('--> created POST /' + model.getBaseRouteName() + ' for: ' + options.routes.create.allowedRoles);
         }
 
         if (options.routes.update.isEnabled) {
             this.routeGenerator.createUpdateRoute(model, options.routes.update.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created PUT /' + model.getBaseRouteName() + '/{id}' + ' for: ' + allowedRoles);
+            console.info('--> created PUT /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.update.allowedRoles);
         }
 
         if (options.routes.delete.isEnabled) {
             this.routeGenerator.createDeleteRoute(model, options.routes.delete.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created DELETE /' + model.getBaseRouteName() + '/{id}' + ' for: ' + allowedRoles);
+            console.info('--> created DELETE /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.delete.allowedRoles);
         }
     });
 };
 
-module.exports = function (server) {
-    return new Api(server);
-};
+module.exports = Api;
