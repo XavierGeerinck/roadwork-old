@@ -91,41 +91,29 @@ Api.prototype.generate = function (baseModel, options) {
         console.info('creating REST routes for ' + model.getTableName() + ':');
         if (options.routes.findAll.isEnabled) {
             this.routeGenerator.createFindAllRoute(model, options.routes.findAll.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created GET /' + model.getBaseRouteName() + ' for: ' + allowedRoles);
+            console.info('--> created GET /' + model.getBaseRouteName() + ' for: ' + options.routes.findAll.allowedRoles);
         }
 
         if (options.routes.findOne.isEnabled) {
             this.routeGenerator.createFindOneRoute(model, options.routes.findOne.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created GET /' + model.getBaseRouteName() + '/{id}' + ' for: ' + allowedRoles);
+            console.info('--> created GET /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.findOne.allowedRoles);
         }
 
         if (options.routes.create.isEnabled) {
             this.routeGenerator.createCreateRoute(model, options.routes.create.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created POST /' + model.getBaseRouteName() + ' for: ' + allowedRoles);
+            console.info('--> created POST /' + model.getBaseRouteName() + ' for: ' + options.routes.create.allowedRoles);
         }
 
         if (options.routes.update.isEnabled) {
             this.routeGenerator.createUpdateRoute(model, options.routes.update.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created PUT /' + model.getBaseRouteName() + '/{id}' + ' for: ' + allowedRoles);
+            console.info('--> created PUT /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.update.allowedRoles);
         }
 
         if (options.routes.delete.isEnabled) {
             this.routeGenerator.createDeleteRoute(model, options.routes.delete.allowedRoles);
-
-            const allowedRoles = options.routes.findAll.allowedRoles || '$everyone';
-            console.info('--> created DELETE /' + model.getBaseRouteName() + '/{id}' + ' for: ' + allowedRoles);
+            console.info('--> created DELETE /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.delete.allowedRoles);
         }
     });
 };
 
-module.exports = function (server) {
-    return new Api(server);
-};
+module.exports = Api;

@@ -25,7 +25,6 @@ describe('Module', () => {
 
     it('should return an error if no server object was passed', (done) => {
         try {
-
             const Api = require('..')();
         } catch (err) {
             expect(err.message).to.equal('No http engine given!');
@@ -65,15 +64,37 @@ describe('Module', () => {
         done();
     });
 
+    it('should use a authentication plugin if one is added through addAuthentication', (done) => {
+        const server = require('./helpers/server-hapi').init();
+        const Api = require('..')(server);
+
+        const roadworkAuthentication = require('roadwork-authentication');
+        const checkRequiredSchemeStub = sinon.stub(roadworkAuthentication.prototype, 'checkRequiredScheme', function () { return Promise.resolve(); });
+
+        Api.addAuthentication(roadworkAuthentication, {})
+        .then(() => {
+            checkRequiredSchemeStub.restore();
+            sinon.assert.calledWith(checkRequiredSchemeStub);
+
+            done();
+        });
+    });
+
     it('should still work with bearer authentication if the plugin is already registered', (done) => {
         const server = require('./helpers/server-hapi').init();
         const Api = require('..')(server);
+
+        const roadworkAuthentication = require('roadwork-authentication');
+        const checkRequiredSchemeStub = sinon.stub(roadworkAuthentication.prototype, 'checkRequiredScheme', function () { return Promise.resolve(); });
 
         Api.addAuthentication(require('roadwork-authentication'), {})
         .then(() => {
             return Api.addAuthentication(require('roadwork-authentication'), {})
         })
         .then(() => {
+            checkRequiredSchemeStub.restore();
+            sinon.assert.calledWith(checkRequiredSchemeStub);
+
             done();
         });
     });
