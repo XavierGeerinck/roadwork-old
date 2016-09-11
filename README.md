@@ -5,12 +5,48 @@
 
 # Usage
 ## Installation
-1. Require the library `const Api = require('rest-crud-generator')`
-2. Pass the `Bookshelf` models to the generate method to create the API calls, with: `Api.generate(User)`
+1. Require the library `const api = require('roadwork')(serverObject)`
+2. Pass the `Bookshelf` models to the generate method to create the API calls, with: `api.generate(User)`
 
 ## Authentication
 ### Enable
 To enable authentication, the only thing you need to do is call the `Api.addAuthentication(authenticationLibrary)` object. This will automatically create the user and user_session tables if they do not exist yet.
+
+Once this is done, the addAuthentication will return a promise stating that it is done, whereafter you can generate the routings with their detailed permissions such as these routes:
+
+```javascript
+// Create API routes
+var api = require('roadwork')(exports.server);
+api.addAuthentication(require('roadwork-authentication'), require('./src/db'))
+.then(function () {
+    api.generate(require('./src/db/models/User'), {
+        routes: {
+            delete:  { allowedRoles: [ 'admin' ] },
+            update:  { allowedRoles: [ 'admin' ] },
+            findAll: { allowedRoles: [ 'admin', '$owner' ] },
+            findOne: { allowedRoles: [ 'admin', '$owner' ] },
+            count:   { allowedRoles: [ 'admin', '$owner' ] },
+            findAllWithPagination: { allowedRoles: [ 'admin', '$owner' ] }
+        }
+    });
+    api.generate(require('./src/db/models/UserSession'), {
+        routes: {
+            delete:  { allowedRoles: [ 'admin' ] },
+            update:  { allowedRoles: [ 'admin' ] },
+            findAll: { allowedRoles: [ 'admin', '$owner' ] },
+            findOne: { allowedRoles: [ 'admin', '$owner' ] },
+            count:   { allowedRoles: [ 'admin', '$owner' ] },
+            findAllWithPagination: { allowedRoles: [ 'admin', '$owner' ] }
+        }
+    });
+
+    return resolve();
+})
+.catch((err) => {
+    console.error(err);
+    return reject(err);
+});
+```
 
 ### Configure route access
 As soon as the authentication has been enabled, you will be able to fine tune access towards a single route. This can be done by specifying the `allowedRoles` in the configuration object (see `API generate(model, options)`).
@@ -44,13 +80,17 @@ generates the CRUD routes for the given model
             "allowedRoles": [],
             "isEnabled": true
         },
+        "findAllWithPagination": {
+            "allowedRoles": [],
+            "isEnabled": true
+        },
         "create": {
             "allowedRoles": [],
             "isEnabled": true
         },
         "delete": {
             "allowedRoles": [],
-            "isEnabled': true
+            "isEnabled": true
         },
         "update": {
             "allowedRoles": [],
@@ -60,41 +100,10 @@ generates the CRUD routes for the given model
 }
 ```
 
-## addBearerAuthentication(validateFunction)
+## addAuthentication(roadworkAuthentication, databaseConfiguration)
 Adds the bearer authentication to the server authentication. This requires the route to have a `Bearer: <token>` header that specifies if the user is allowed access to the route.
 
-The `validateFunction` specifies if this given `<token>` is correct and access is allowed (boolean). You will want to check this against the UserSession table to see if the token matches an entry.
-
-An example of a fully fledged authentication function:
-
-```javascript
-exports.validateFunction = function (token, callback) {
-    UserSessionModel
-    .where({ token: token })
-    .fetch()
-    .then(function (userSession) {
-        if (!userSession) {
-            return Promise.reject(Boom.badRequest('INVALID_TOKEN'));
-        }
-
-        return UserModel.where({ id: userSession.get('user_id') })
-        .fetch();
-    })
-    .then(function (user) {
-        if (!user) {
-            return Promise.reject(Boom.badRequest('INVALID_TOKEN'));
-        }
-
-        var userObj = user;
-        userObj.scope = [ user.get('scope') ];
-
-        return callback(null, true, userObj);
-    })
-    .catch(function (err) {
-        return callback(err);
-    });
-};
-```
+The system will then look into the `user_session` table and confirm  the `user` object.
 
 # Route scheme
 Routes are generated on the plural name of the base model separated by _ on the capital letters.
