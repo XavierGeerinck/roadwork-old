@@ -21,9 +21,9 @@ Example:
 
 ```json
 {
-    routes: {
-        update: {
-            allowedRoles: [ '$owner' ]
+    "routes": {
+        "update": {
+            "allowedRoles": [ '$owner' ]
         }
     }
 }
@@ -35,26 +35,26 @@ generates the CRUD routes for the given model
 
 ```json
 {
-    routes: {
-        findOne: {
-            allowedRoles: [],
-            isEnabled: true
+    "routes": {
+        "findOne": {
+            "allowedRoles": [],
+            "isEnabled": true
         },
-        findAll: {
-            allowedRoles: [],
-            isEnabled: true
+        "findAll": {
+            "allowedRoles": [],
+            "isEnabled": true
         },
-        create: {
-            allowedRoles: [],
-            isEnabled: true
+        "create": {
+            "allowedRoles": [],
+            "isEnabled": true
         },
-        delete: {
-            allowedRoles: [],
-            isEnabled: true
+        "delete": {
+            "allowedRoles": [],
+            "isEnabled': true
         },
-        update: {
-            allowedRoles: [],
-            isEnabled: true
+        "update": {
+            "allowedRoles": [],
+            "isEnabled": true
         }
     }
 }
