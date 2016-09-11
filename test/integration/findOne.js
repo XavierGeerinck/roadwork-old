@@ -16,6 +16,7 @@ const expect = Code.expect;
 const ORM = require('../helpers/orm-bookshelf');
 const User = ORM.Models.User;
 const server = require('../helpers/server-hapi').init();
+const RouteGenerator = require(process.cwd() + '/src/adapters/route-generator-hapi');
 const Api = require('../..')(server);
 
 describe('GET /<model> collection', () => {
@@ -66,6 +67,98 @@ describe('GET /<model> collection', () => {
                 fetchOneSpy.restore();
                 sinon.assert.calledOnce(fetchOneSpy);
                 sinon.assert.calledWith(fetchOneSpy, "1"); // expect that we call findOneById with id: 1 (see route)
+
+                done();
+            });
+        });
+    });
+
+    it('should use the findOneById method in the handler if we have authentication, the ownerRole and have access!', (done) => {
+        const server = require('../helpers/server-hapi').init();
+
+        const mockModel = {
+            getBaseRouteName: function () {
+                return 'mocks'
+            },
+
+            createObject: function (payload) {
+                return false;
+            },
+
+            findOneById: function (id) {
+                return 'findOneById_called';
+            },
+
+            findAll: function () {
+                return false;
+            }
+        };
+
+        const mockAuthentication = {
+            hasAccess: function (request, rolesAllowed, model) {
+                return Promise.resolve(true);
+            }
+        };
+
+        const routeGenerator = new RouteGenerator(server);
+        routeGenerator.createFindOneRoute(mockModel, [ '$owner' ]); // model, rolesAllowed
+        routeGenerator.authentication = mockAuthentication;
+
+        var routes = server.table()[0].table;
+        const routeName =  '/' + mockModel.getBaseRouteName() + '/1';
+
+        server.start((err) => {
+            expect(err).to.not.exist();
+
+            server.inject({ method: 'GET', url: routeName, credentials: { get: function (column) { return 1; } } }, (res) => {
+                // If the mock was called, then it should return true!
+                expect(res.payload).to.equal('findOneById_called');
+
+                done();
+            });
+        });
+    });
+
+    it('should return unauthorized if we have authentication, the ownerRole and have no access!', (done) => {
+        const server = require('../helpers/server-hapi').init();
+
+        const mockModel = {
+            getBaseRouteName: function () {
+                return 'mocks'
+            },
+
+            createObject: function (payload) {
+                return false;
+            },
+
+            findOneById: function (id) {
+                return 'findOneById_called';
+            },
+
+            findAll: function () {
+                return false;
+            }
+        };
+
+        const mockAuthentication = {
+            hasAccess: function (request, rolesAllowed, model) {
+                return Promise.resolve(false);
+            }
+        };
+
+        const routeGenerator = new RouteGenerator(server);
+        routeGenerator.createFindOneRoute(mockModel, [ '$owner' ]); // model, rolesAllowed
+        routeGenerator.authentication = mockAuthentication;
+
+        var routes = server.table()[0].table;
+        const routeName =  '/' + mockModel.getBaseRouteName() + '/1';
+
+        server.start((err) => {
+            expect(err).to.not.exist();
+
+            server.inject({ method: 'GET', url: routeName, credentials: { get: function (column) { return 1; } } }, (res) => {
+                expect(JSON.parse(res.payload).statusCode).to.equal(401);
+                expect(JSON.parse(res.payload).error).to.equal('Unauthorized');
 
                 done();
             });
