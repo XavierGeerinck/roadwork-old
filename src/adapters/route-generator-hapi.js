@@ -142,4 +142,23 @@ routeGenerator.prototype.createDeleteRoute = function (model, rolesAllowed) {
     this.httpServer.route(self.processRoles(model, rolesAllowed, routeOptions));
 };
 
+routeGenerator.prototype.createCountRoute = function (model, rolesAllowed) {
+    var hasOwnerRole = rolesAllowed && rolesAllowed.indexOf('$owner') > -1;
+    var self = this;
+
+    var routeOptions = {
+        method: 'GET',
+        path: '/' + model.getBaseRouteName() + '/count',
+        handler: function (request, reply) {
+            if (self.authentication && hasOwnerRole) {
+                return reply(model.countByUserId(request.auth.credentials.get('id')));
+            } else {
+                return reply(model.count());
+            }
+        }
+    };
+
+    this.httpServer.route(self.processRoles(model, rolesAllowed, routeOptions));
+};
+
 module.exports = routeGenerator;

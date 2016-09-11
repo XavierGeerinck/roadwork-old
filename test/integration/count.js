@@ -20,15 +20,15 @@ const server = require('../helpers/server-hapi').init();
 const RouteGenerator = require(process.cwd() + '/src/adapters/route-generator-hapi');
 const Api = require('../..')(server);
 
-describe('GET /<model> collection', () => {
+describe('GET /<model>/count collection', () => {
     before((done) => {
         Api.generate(User);
         done();
     });
 
-    it('should register the GET /<model> call in the hapi framework', (done) => {
+    it('should register the GET /<model>/count call in the hapi framework', (done) => {
         var routes = server.table()[0].table;
-        const routeName =  '/' + pluralize(User.forge().tableName);
+        const routeName =  '/' + pluralize(User.forge().tableName) + '/count';
 
         expect(routes).to.include({ method: 'get' });
         expect(routes).to.include({ path: routeName });
@@ -36,27 +36,27 @@ describe('GET /<model> collection', () => {
         done();
     });
 
-    it('should not register the GET /<model> call if isEnabled = false', (done) => {
+    it('should not register the GET /<model>/count call if isEnabled = false', (done) => {
         const server = require('../helpers/server-hapi').init();
         const Api = require('../..')(server);
-        Api.generate(User, { routes: { findAll: { isEnabled: false } } });
+        Api.generate(User, { routes: { count: { isEnabled: false } } });
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + pluralize(User.forge().tableName);
+        const routeName =  '/' + pluralize(User.forge().tableName) + '/count';
 
         expect(routes).to.not.include({ method: 'get', path: routeName });
 
         done();
     });
 
-    it('should call the fetchAll method in Model.js when we request this route without the $owner role', (done) => {
+    it('should call the count method in Model.js when we request this route without the $owner role', (done) => {
         const models = Api.getModels();
 
         // Spy on the mock model
-        var fetchAllSpy = sinon.spy(models[0], 'findAll');
+        var spy = sinon.spy(models[0], 'count');
 
         // Perform our normal routine
-        const routeName =  '/' + pluralize(User.forge().tableName);
+        const routeName =  '/' + pluralize(User.forge().tableName) + '/count';
         server.start((err) => {
             expect(err).to.not.exist();
 
@@ -64,18 +64,18 @@ describe('GET /<model> collection', () => {
             //       We just want to check if the 'fetchAll' function gets called
             server.inject({ method: 'GET', url: routeName }, (res) => {
                 // Now check if we called the method fetchAll
-                fetchAllSpy.restore();
-                sinon.assert.calledOnce(fetchAllSpy);
+                spy.restore();
+                sinon.assert.calledOnce(spy);
 
                 done();
             });
         });
     });
 
-    it('should call the findAllByUserId method in Model.js when we request this route with the $owner role', (done) => {
+    it('should call the countByUserId method in Model.js when we request this route with the $owner role', (done) => {
         Api.generate(UserSession, {
             routes: {
-                findAll: {
+                count: {
                     allowedRoles: [ '$owner' ]
                 }
             }
@@ -86,10 +86,10 @@ describe('GET /<model> collection', () => {
         const models = Api.getModels();
 
         // Spy on the mock model
-        var fetchAllSpy = sinon.spy(models[1], 'findAllByUserId');
+        var spy = sinon.spy(models[1], 'countByUserId');
 
         // Perform our normal routine
-        const routeName =  '/' + pluralize(UserSession.forge().tableName);
+        const routeName =  '/' + pluralize(UserSession.forge().tableName) + '/count';
         server.start((err) => {
             expect(err).to.not.exist();
 
@@ -97,15 +97,15 @@ describe('GET /<model> collection', () => {
             //       We just want to check if the 'fetchAll' function gets called
             server.inject({ method: 'GET', url: routeName, credentials: { get: function (column) { return 1; } } }, (res) => {
                 // Now check if we called the method fetchAll
-                fetchAllSpy.restore();
-                sinon.assert.calledOnce(fetchAllSpy);
+                spy.restore();
+                sinon.assert.calledOnce(spy);
 
                 done();
             });
         });
     });
 
-    it('should use the findAllByUserId method in the handler if we have authentication and the ownerRole', (done) => {
+    it('should use the countByUserId_called method in the handler if we have authentication and the ownerRole', (done) => {
         const server = require('../helpers/server-hapi').init();
 
         const mockModel = {
@@ -113,32 +113,27 @@ describe('GET /<model> collection', () => {
                 return 'mocks'
             },
 
-            createObject: function (payload) {
-                return false;
+            countByUserId: function (userId) {
+                return 'countByUserId_called';
             },
 
-            findAllByUserId: function (userId) {
-                return 'findAllByUserId_called';
-            },
-
-            findAll: function () {
-                return false;
+            count: function () {
+                return 'count_called';
             }
         };
 
         const routeGenerator = new RouteGenerator(server);
-        routeGenerator.createFindAllRoute(mockModel, [ '$owner' ]); // model, rolesAllowed
+        routeGenerator.createCountRoute(mockModel, [ '$owner' ]); // model, rolesAllowed
         routeGenerator.authentication = true;
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName();
+        const routeName =  '/' + mockModel.getBaseRouteName() + '/count';
 
         server.start((err) => {
             expect(err).to.not.exist();
 
             server.inject({ method: 'GET', url: routeName, credentials: { get: function (column) { return 1; } } }, (res) => {
-                // If the mock was called, then it should return findAllByUserId_called!
-                expect(res.payload).to.equal('findAllByUserId_called');
+                expect(res.payload).to.equal('countByUserId_called');
 
                 done();
             });

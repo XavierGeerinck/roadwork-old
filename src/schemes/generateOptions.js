@@ -21,6 +21,10 @@ const schema = Joi.object({
         delete: Joi.object({
             allowedRoles: Joi.array(),
             isEnabled: Joi.boolean().default(true)
+        }).default(),
+        count: Joi.object({
+            allowedRoles: Joi.array(),
+            isEnabled: Joi.boolean().default(true)
         }).default()
     }).default()
 }).default();

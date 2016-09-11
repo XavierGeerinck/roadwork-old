@@ -52,7 +52,7 @@ describe('GET /<model> collection', () => {
         const models = Api.getModels();
 
         // Spy on the mock model
-        var deleteSpy = sinon.spy(models[0], 'update');
+        var spy = sinon.spy(models[0], 'update');
 
         // Perform our normal routine
         const routeName =  '/' + pluralize(User.forge().tableName) + '/1';
@@ -69,10 +69,10 @@ describe('GET /<model> collection', () => {
 
             server.inject({ method: 'PUT', url: routeName, payload: payload }, (res) => {
                 // Now check if we called the method fetchAll
-                deleteSpy.restore();
-                sinon.assert.calledOnce(deleteSpy);
-                expect(deleteSpy.args[0][0]).to.equal("1"); // First parameter is the id
-                expect(deleteSpy.args[0][1]).to.equal(payload); // Second parameter is the data
+                spy.restore();
+                sinon.assert.calledOnce(spy);
+                expect(spy.args[0][0]).to.equal("1"); // First parameter is the id
+                expect(spy.args[0][1]).to.equal(payload); // Second parameter is the data
 
                 done();
             });

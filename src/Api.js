@@ -113,6 +113,11 @@ Api.prototype.generate = function (baseModel, options) {
             this.routeGenerator.createDeleteRoute(model, options.routes.delete.allowedRoles);
             console.info('--> created DELETE /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.delete.allowedRoles);
         }
+
+        if (options.routes.count.isEnabled) {
+            this.routeGenerator.createCountRoute(model, options.routes.count.allowedRoles);
+            console.info('--> created GET /' + model.getBaseRouteName() + '/count' + ' for: ' + options.routes.count.allowedRoles);
+        }
     });
 };
 

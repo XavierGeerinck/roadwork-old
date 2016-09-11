@@ -15,6 +15,10 @@ Model.prototype.getTableName = function () {
     return this.baseModel.forge().tableName;
 };
 
+Model.prototype.getBaseModel = function () {
+    return this.baseModel;
+};
+
 Model.prototype.getBaseRouteName = function () {
     return this.baseRoute;
 };
@@ -42,6 +46,14 @@ Model.prototype.update = function (id, data) {
 
 Model.prototype.delete = function (id) {
     return this.baseModel.where({ id: id }).destroy();
+};
+
+Model.prototype.count = function () {
+    return this.baseModel.count().then(function (count) { return Promise.resolve({ count: count })});
+};
+
+Model.prototype.countByUserId = function (userId) {
+    return this.baseModel.where('user_id', userId).count().then(function (count) { return Promise.resolve({ count: count })});
 };
 
 module.exports = Model;
