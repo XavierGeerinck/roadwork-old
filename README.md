@@ -65,6 +65,18 @@ Example:
 }
 ```
 
+# Generated Routes
+
+|route|description|
+|-|-|
+|`GET /<model>`|Gets all the objects for the specific model, if the _$owner_ role has been added to rolesAllowed, then only the objects where the user has access to will be returned|
+|`GET /<model>/{id}`|Gets the specified object for the given model, if the _$owner_ role has been added to rolesAllowed, then only if the user has access this object will be returned|
+|`GET /<model>/pagination/{offset}?limit={limit}`|Gets all the objects for the specific model starting at a specific id offset and a certain limit, if the _$owner_ route has been added, only the objects where the user has access to will be returned|
+|`POST /<model>`|Creates a specific item for the given model|
+|`PUT /<model>/{id}`|Updates a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can update his/her own object|
+|`DELETE /<model>/{id}`|Deletes a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can delete his/her own object|
+|`GET /<model>/count`|Gets the number of items for the specific model, if the _$owner_ object has been specified, only the amount of items where the owner has access to will be returned|
+
 # API
 ## generate(model, options)
 generates the CRUD routes for the given model
