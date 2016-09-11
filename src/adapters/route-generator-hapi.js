@@ -1,4 +1,5 @@
 const Boom = require('boom');
+const Joi = require('joi');
 
 var routeGenerator = function (httpServer) {
     this.httpServer = httpServer;
@@ -63,6 +64,37 @@ routeGenerator.prototype.createFindAllRoute = function (model, rolesAllowed) {
                 return reply(model.findAllByUserId(request.auth.credentials.get('id')));
             } else {
                 return reply(model.findAll());
+            }
+        }
+    };
+
+    this.httpServer.route(self.processRoles(model, rolesAllowed, routeOptions));
+};
+
+
+routeGenerator.prototype.createFindAllWithPaginationRoute = function (model, rolesAllowed) {
+    var hasOwnerRole = rolesAllowed && rolesAllowed.indexOf('$owner') > -1;
+    var self = this;
+
+    var routeOptions = {
+        method: 'GET',
+        path: '/' + model.getBaseRouteName() + '/pagination/{offset}',
+        config: {
+            validate: {
+                query: {
+                    limit: Joi.number().max(20)
+                }
+            }
+        },
+        handler: function (request, reply) {
+            let limit = request.query.limit;
+            let offset = request.params.offset;
+
+            if (self.authentication && hasOwnerRole) {
+                let userId = request.auth.credentials.get('id');
+                return reply(model.findAllByUserIdWithPagination(request.auth.credentials.get('id'), offset, limit));
+            } else {
+                return reply(model.findAllWithPagination(offset, limit));
             }
         }
     };

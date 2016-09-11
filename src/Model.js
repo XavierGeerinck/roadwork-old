@@ -31,6 +31,14 @@ Model.prototype.findAll = function () {
     return this.baseModel.fetchAll();
 };
 
+Model.prototype.findAllWithPagination = function (offset, limit) {
+    return this.baseModel.fetchPage({ offset: offset, limit: limit });
+};
+
+Model.prototype.findAllByUserIdWithPagination = function (userId, offset, limit) {
+    return this.baseModel.where('user_id', userId).fetchPage({ offset: offset, limit: limit });
+};
+
 Model.prototype.findOneById = function (id) {
     return this.baseModel.where({ id: id }).fetch();
 };

@@ -94,6 +94,11 @@ Api.prototype.generate = function (baseModel, options) {
             console.info('--> created GET /' + model.getBaseRouteName() + ' for: ' + options.routes.findAll.allowedRoles);
         }
 
+        if (options.routes.findAllWithPagination.isEnabled) {
+            this.routeGenerator.createFindAllWithPaginationRoute(model, options.routes.findAllWithPagination.allowedRoles);
+            console.info('--> created GET /' + model.getBaseRouteName() + '/pagination/{offset}?limit={limit}' + ' for: ' + options.routes.findAllWithPagination.allowedRoles);
+        }
+
         if (options.routes.findOne.isEnabled) {
             this.routeGenerator.createFindOneRoute(model, options.routes.findOne.allowedRoles);
             console.info('--> created GET /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.findOne.allowedRoles);

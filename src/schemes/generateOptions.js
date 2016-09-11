@@ -10,6 +10,10 @@ const schema = Joi.object({
             allowedRoles: Joi.array(),
             isEnabled: Joi.boolean().default(true)
         }).default(),
+        findAllWithPagination: Joi.object({
+            allowedRoles: Joi.array(),
+            isEnabled: Joi.boolean().default(true)
+        }).default(),
         create: Joi.object({
             allowedRoles: Joi.array(),
             isEnabled: Joi.boolean().default(true)
