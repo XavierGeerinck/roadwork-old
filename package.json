@@ -1,6 +1,6 @@
 {
   "name": "roadwork",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "REST API Generator for Bookshelf.js and Hapijs",
   "homepage": "https://github.com/thebillkidy/roadwork",
   "bugs": "https://github.com/thebillkidy/roadwork/issues",
