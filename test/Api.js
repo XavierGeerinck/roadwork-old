@@ -85,15 +85,15 @@ describe('Module', () => {
         const Api = require('..')(server);
 
         const roadworkAuthentication = require('roadwork-authentication');
-        const checkRequiredSchemeStub = sinon.stub(roadworkAuthentication.prototype, 'checkRequiredScheme', function () { return Promise.resolve(); });
+        const stub = sinon.stub(roadworkAuthentication.prototype, 'init', function () { return Promise.resolve(); });
 
         Api.addAuthentication(require('roadwork-authentication'), {})
         .then(() => {
             return Api.addAuthentication(require('roadwork-authentication'), {})
         })
         .then(() => {
-            checkRequiredSchemeStub.restore();
-            sinon.assert.calledWith(checkRequiredSchemeStub);
+            stub.restore();
+            sinon.assert.calledWith(stub);
 
             done();
         });

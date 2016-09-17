@@ -45,8 +45,8 @@ Api.prototype.addAuthentication = function (authenticationLibrary, bookshelf) {
         this.routeGenerator.addAuthentication(this.authentication);
 
         // Call the check to see if the tables exist and create them if needed
-        this.authentication.checkRequiredScheme()
-        .then(function (results) {
+        this.authentication.init()
+        .then(function () {
             console.info('[x] Database scheme is valid');
             return resolve();
         });

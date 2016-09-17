@@ -22,7 +22,22 @@ const Api = require('../..')(server);
 
 describe('GET /<model> collection', () => {
     before((done) => {
-        Api.generate(User);
+        Api.generate(User, {
+            routes: {
+                findAll: {
+                    allowedRoles: [ '$owner' ]
+                }
+            }
+        });
+
+        Api.generate(UserSession, {
+            routes: {
+                findAll: {
+                    allowedRoles: [ '$owner' ]
+                }
+            }
+        });
+
         done();
     });
 
@@ -72,21 +87,60 @@ describe('GET /<model> collection', () => {
         });
     });
 
-    it('should call the findAllByUserId method in Model.js when we request this route with the $owner role', (done) => {
-        Api.generate(UserSession, {
-            routes: {
-                findAll: {
-                    allowedRoles: [ '$owner' ]
-                }
-            }
-        });
-
+    it('should call the findAllByUserId method in Model.js when we request this route with the $owner role, and it should call this with .where("id") if the table is our main user table', (done) => {
         Api.getRouteGenerator().authentication = true;
 
         const models = Api.getModels();
 
         // Spy on the mock model
-        var fetchAllSpy = sinon.spy(models[1], 'findAllByUserId');
+        var spy = sinon.spy(models[0], 'findAllByUserId');
+        const stub = sinon.stub(models[0].getBaseModel(), 'where', function (column, value) {
+            return {
+                fetchAll:  function () {
+                    return Promise.resolve('called_column_' + column);
+                }
+            }
+        });
+
+        expect(models[0].getTableName()).to.equal('user');
+
+        // Perform our normal routine
+        const routeName =  '/' + pluralize(User.forge().tableName);
+        server.start((err) => {
+            expect(err).to.not.exist();
+
+            // Note: The calls will fail since we have no connection to the database!
+            //       We just want to check if the 'fetchAll' function gets called
+            server.inject({ method: 'GET', url: routeName, credentials: { get: function (column) { return 1; } } }, (res) => {
+                // Now check if we called the method fetchAll
+                spy.restore();
+                stub.restore();
+                sinon.assert.calledOnce(spy);
+
+                // It should call the where with the id column!
+                expect(res.payload).to.equal('called_column_id');
+
+                done();
+            });
+        });
+    });
+
+    it('should call the findAllByUserId method in Model.js when we request this route with the $owner role, and it should call this with .where("user_id") if the table is NOT our main user table', (done) => {
+        Api.getRouteGenerator().authentication = true;
+
+        const models = Api.getModels();
+
+        // Spy on the mock model
+        var spy = sinon.spy(models[1], 'findAllByUserId');
+        const stub = sinon.stub(models[1].getBaseModel(), 'where', function (column, value) {
+            return {
+                fetchAll:  function () {
+                    return Promise.resolve('called_column_' + column);
+                }
+            }
+        });
+
+        expect(models[0].getTableName()).to.equal('user');
 
         // Perform our normal routine
         const routeName =  '/' + pluralize(UserSession.forge().tableName);
@@ -97,8 +151,12 @@ describe('GET /<model> collection', () => {
             //       We just want to check if the 'fetchAll' function gets called
             server.inject({ method: 'GET', url: routeName, credentials: { get: function (column) { return 1; } } }, (res) => {
                 // Now check if we called the method fetchAll
-                fetchAllSpy.restore();
-                sinon.assert.calledOnce(fetchAllSpy);
+                spy.restore();
+                stub.restore();
+                sinon.assert.calledOnce(spy);
+
+                // It should call the where with the id column!
+                expect(res.payload).to.equal('called_column_user_id');
 
                 done();
             });

@@ -12,7 +12,7 @@ var Model = function (baseModel) {
 };
 
 Model.prototype.getTableName = function () {
-    return this.baseModel.forge().tableName;
+    return pluralize.singular(this.baseModel.forge().tableName);
 };
 
 Model.prototype.getBaseModel = function () {
@@ -24,7 +24,11 @@ Model.prototype.getBaseRouteName = function () {
 };
 
 Model.prototype.findAllByUserId = function (userId) {
-    return this.baseModel.where('user_id', userId).fetchAll();
+    if (this.getTableName() === 'user') {
+        return this.baseModel.where('id', userId).fetchAll();
+    } else {
+        return this.baseModel.where('user_id', userId).fetchAll();
+    }
 };
 
 Model.prototype.findAll = function () {
