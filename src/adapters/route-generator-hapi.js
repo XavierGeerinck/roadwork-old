@@ -114,13 +114,13 @@ class RouteGenerator {
 
                 if (self.authentication && hasOwnerRole) {
                     self.authentication.hasAccess(request, rolesAllowed, model)
-                        .then((hasAccess) => {
-                            if (hasAccess) {
-                                return reply(model.findOneById(id));
-                            } else {
-                                return reply(Boom.unauthorized());
-                            }
-                        });
+                    .then((hasAccess) => {
+                        if (hasAccess) {
+                            return reply(model.findOneById(id));
+                        } else {
+                            return reply(Boom.unauthorized());
+                        }
+                    });
                 } else {
                     return reply(model.findOneById(id));
                 }
