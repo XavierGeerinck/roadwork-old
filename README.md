@@ -4,13 +4,16 @@
 * Turn of the generation of specified routes
 
 # Usage
+## Prerequisites
+This plugin requires you to have `Bookshelf.js` installed and configured. The reason for this is because it depends on the models to fetch table information and configure the routes correctly. In the future this requisite will be removed when there is time for it.
+
 ## Installation
 1. Require the library `const api = require('roadwork')(serverObject)`
 2. Pass the `Bookshelf` models to the generate method to create the API calls, with: `api.generate(User)`
 
 ## Authentication
 ### Enable
-To enable authentication, the only thing you need to do is call the `Api.addAuthentication(authenticationLibrary)` object. This will automatically create the user and user_session tables if they do not exist yet.
+To enable authentication, the only thing you need to do is call the `Api.addAuthentication(authenticationLibrary, dbConfiguration)` object. This will automatically create the user and user_session tables if they do not exist yet.
 
 Once this is done, the addAuthentication will return a promise stating that it is done, whereafter you can generate the routings with their detailed permissions such as these routes:
 
