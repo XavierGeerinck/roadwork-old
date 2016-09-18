@@ -60,7 +60,7 @@ class RouteGenerator {
         var routeOptions = {
             method: 'GET',
             path: '/' + model.baseRoute,
-            handler: function (request, reply) {
+            handler: (request, reply) => {
                 if (self.authentication && hasOwnerRole) {
                     return reply(model.findAllByUserId(request.auth.credentials.get('id')));
                 } else {
@@ -86,7 +86,7 @@ class RouteGenerator {
                     }
                 }
             },
-            handler: function (request, reply) {
+            handler: (request, reply) => {
                 let limit = request.query.limit;
                 let offset = request.params.offset;
 
@@ -109,7 +109,7 @@ class RouteGenerator {
         var routeOptions = {
             method: 'GET',
             path: '/' + model.baseRoute + '/{id}',
-            handler: function (request, reply) {
+            handler: (request, reply) => {
                 var id = request.params.id;
 
                 if (self.authentication && hasOwnerRole) {
@@ -136,7 +136,7 @@ class RouteGenerator {
         var routeOptions = {
             method: 'POST',
             path: '/' + model.baseRoute,
-            handler: function (request, reply) {
+            handler: (request, reply) => {
                 reply(model.createObject(request.payload));
             }
         };
@@ -150,7 +150,7 @@ class RouteGenerator {
         var routeOptions = {
             method: 'PUT',
             path: '/' + model.baseRoute + '/{id}',
-            handler: function (request, reply) {
+            handler: (request, reply) => {
                 var id = request.params.id;
                 reply(model.update(id, request.payload));
             }
@@ -165,7 +165,7 @@ class RouteGenerator {
         var routeOptions = {
             method: 'DELETE',
             path: '/' + model.baseRoute + '/{id}',
-            handler: function (request, reply) {
+            handler: (request, reply) => {
                 var id = request.params.id;
                 reply(model.delete(id));
             }
@@ -181,7 +181,7 @@ class RouteGenerator {
         var routeOptions = {
             method: 'GET',
             path: '/' + model.baseRoute + '/count',
-            handler: function (request, reply) {
+            handler: (request, reply) => {
                 if (self.authentication && hasOwnerRole) {
                     return reply(model.countByUserId(request.auth.credentials.get('id')));
                 } else {

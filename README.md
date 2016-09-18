@@ -21,7 +21,7 @@ Once this is done, the addAuthentication will return a promise stating that it i
 // Create API routes
 var api = require('roadwork')(exports.server);
 api.addAuthentication(require('roadwork-authentication'), require('./src/db'))
-.then(function () {
+.then(() => {
     api.generate(require('./src/db/models/User'), {
         routes: {
             delete:  { allowedRoles: [ 'admin' ] },
