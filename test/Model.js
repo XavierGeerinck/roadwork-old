@@ -27,7 +27,7 @@ describe('Model Count', () => {
         let Model = require(process.cwd() + '/src/Model.js');
         let model = new Model(User);
 
-        const stub = sinon.stub(model.getBaseModel(), 'count', function () { return Promise.resolve(5); });
+        const stub = sinon.stub(model.baseModel, 'count', function () { return Promise.resolve(5); });
 
         model.count()
         .then(function (result) {
@@ -42,7 +42,7 @@ describe('Model Count', () => {
         let Model = require(process.cwd() + '/src/Model.js');
         let model = new Model(User);
 
-        const stub = sinon.stub(model.getBaseModel(), 'where', function () {
+        const stub = sinon.stub(model.baseModel, 'where', function () {
             return {
                 count:  function () {
                     return Promise.resolve(2);

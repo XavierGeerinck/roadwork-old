@@ -127,7 +127,7 @@ describe('GET /<model>/count collection', () => {
         routeGenerator.authentication = true;
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName() + '/count';
+        const routeName =  '/' + mockModel.baseRoute + '/count';
 
         server.start((err) => {
             expect(err).to.not.exist();

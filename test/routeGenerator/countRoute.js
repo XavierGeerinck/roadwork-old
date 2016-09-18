@@ -34,7 +34,7 @@ describe('routeGenerator /count', () => {
         routeGenerator.createCountRoute(mockModel, null); // model, rolesAllowed
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName() + '/count';
+        const routeName =  '/' + mockModel.baseRoute + '/count';
 
         expect(routes).to.include({ method: 'get', path: routeName });
 

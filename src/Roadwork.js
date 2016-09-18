@@ -88,40 +88,40 @@ Roadwork.prototype.generate = function (baseModel, options) {
 
         this.models.push(model);
 
-        console.info('creating REST routes for ' + model.getTableName() + ':');
+        console.info('creating REST routes for ' + model.tableName + ':');
         if (options.routes.findAll.isEnabled) {
             this.routeGenerator.createFindAllRoute(model, options.routes.findAll.allowedRoles);
-            console.info('--> created GET /' + model.getBaseRouteName() + ' for: ' + options.routes.findAll.allowedRoles);
+            console.info('--> created GET /' + model.baseRoute + ' for: ' + options.routes.findAll.allowedRoles);
         }
 
         if (options.routes.findAllWithPagination.isEnabled) {
             this.routeGenerator.createFindAllWithPaginationRoute(model, options.routes.findAllWithPagination.allowedRoles);
-            console.info('--> created GET /' + model.getBaseRouteName() + '/pagination/{offset}?limit={limit}' + ' for: ' + options.routes.findAllWithPagination.allowedRoles);
+            console.info('--> created GET /' + model.baseRoute + '/pagination/{offset}?limit={limit}' + ' for: ' + options.routes.findAllWithPagination.allowedRoles);
         }
 
         if (options.routes.findOne.isEnabled) {
             this.routeGenerator.createFindOneRoute(model, options.routes.findOne.allowedRoles);
-            console.info('--> created GET /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.findOne.allowedRoles);
+            console.info('--> created GET /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.findOne.allowedRoles);
         }
 
         if (options.routes.create.isEnabled) {
             this.routeGenerator.createCreateRoute(model, options.routes.create.allowedRoles);
-            console.info('--> created POST /' + model.getBaseRouteName() + ' for: ' + options.routes.create.allowedRoles);
+            console.info('--> created POST /' + model.baseRoute + ' for: ' + options.routes.create.allowedRoles);
         }
 
         if (options.routes.update.isEnabled) {
             this.routeGenerator.createUpdateRoute(model, options.routes.update.allowedRoles);
-            console.info('--> created PUT /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.update.allowedRoles);
+            console.info('--> created PUT /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.update.allowedRoles);
         }
 
         if (options.routes.delete.isEnabled) {
             this.routeGenerator.createDeleteRoute(model, options.routes.delete.allowedRoles);
-            console.info('--> created DELETE /' + model.getBaseRouteName() + '/{id}' + ' for: ' + options.routes.delete.allowedRoles);
+            console.info('--> created DELETE /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.delete.allowedRoles);
         }
 
         if (options.routes.count.isEnabled) {
             this.routeGenerator.createCountRoute(model, options.routes.count.allowedRoles);
-            console.info('--> created GET /' + model.getBaseRouteName() + '/count' + ' for: ' + options.routes.count.allowedRoles);
+            console.info('--> created GET /' + model.baseRoute + '/count' + ' for: ' + options.routes.count.allowedRoles);
         }
     });
 };

@@ -34,7 +34,7 @@ describe('routeGenerator /delete', () => {
         routeGenerator.createDeleteRoute(mockModel, null); // model, rolesAllowed
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName() + '/{id}';
+        const routeName =  '/' + mockModel.baseRoute + '/{id}';
 
         expect(routes).to.include({ method: 'delete', path: routeName });
 

@@ -94,7 +94,7 @@ describe('GET /<model> collection', () => {
 
         // Spy on the mock model
         var spy = sinon.spy(models[0], 'findAllByUserId');
-        const stub = sinon.stub(models[0].getBaseModel(), 'where', function (column, value) {
+        const stub = sinon.stub(models[0].baseModel, 'where', function (column, value) {
             return {
                 fetchAll:  function () {
                     return Promise.resolve('called_column_' + column);
@@ -102,7 +102,7 @@ describe('GET /<model> collection', () => {
             }
         });
 
-        expect(models[0].getTableName()).to.equal('user');
+        expect(models[0].tableName).to.equal('user');
 
         // Perform our normal routine
         const routeName =  '/' + pluralize(User.forge().tableName);
@@ -132,7 +132,7 @@ describe('GET /<model> collection', () => {
 
         // Spy on the mock model
         var spy = sinon.spy(models[1], 'findAllByUserId');
-        const stub = sinon.stub(models[1].getBaseModel(), 'where', function (column, value) {
+        const stub = sinon.stub(models[1].baseModel, 'where', function (column, value) {
             return {
                 fetchAll:  function () {
                     return Promise.resolve('called_column_' + column);
@@ -140,7 +140,7 @@ describe('GET /<model> collection', () => {
             }
         });
 
-        expect(models[0].getTableName()).to.equal('user');
+        expect(models[0].tableName).to.equal('user');
 
         // Perform our normal routine
         const routeName =  '/' + pluralize(UserSession.forge().tableName);
@@ -189,7 +189,7 @@ describe('GET /<model> collection', () => {
         routeGenerator.authentication = true;
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName();
+        const routeName =  '/' + mockModel.baseRoute;
 
         server.start((err) => {
             expect(err).to.not.exist();

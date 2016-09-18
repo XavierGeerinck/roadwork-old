@@ -34,7 +34,7 @@ describe('routeGenerator /findAll', () => {
         routeGenerator.createFindAllRoute(mockModel, null); // model, rolesAllowed
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName();
+        const routeName =  '/' + mockModel.baseRoute;
 
         expect(routes).to.include({ method: 'get', path: routeName });
 
@@ -59,7 +59,7 @@ describe('routeGenerator /findAll', () => {
         routeGenerator.createFindAllRoute(mockModel, [ '$owner' ]); // model, rolesAllowed
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName();
+        const routeName =  '/' + mockModel.baseRoute;
         expect(routes).to.include({ method: 'get', path: routeName });
 
         done();

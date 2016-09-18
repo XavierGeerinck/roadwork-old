@@ -131,7 +131,7 @@ describe('GET /<model>/pagination/{offset}?limit={limit} collection', () => {
         routeGenerator.authentication = true;
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName() + '/pagination/5?limit=2';
+        const routeName =  '/' + mockModel.baseRoute + '/pagination/5?limit=2';
 
         server.start((err) => {
             expect(err).to.not.exist();

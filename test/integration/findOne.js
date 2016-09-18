@@ -105,7 +105,7 @@ describe('GET /<model> collection', () => {
         routeGenerator.authentication = mockAuthentication;
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName() + '/1';
+        const routeName =  '/' + mockModel.baseRoute + '/1';
 
         server.start((err) => {
             expect(err).to.not.exist();
@@ -151,7 +151,7 @@ describe('GET /<model> collection', () => {
         routeGenerator.authentication = mockAuthentication;
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName() + '/1';
+        const routeName =  '/' + mockModel.baseRoute + '/1';
 
         server.start((err) => {
             expect(err).to.not.exist();

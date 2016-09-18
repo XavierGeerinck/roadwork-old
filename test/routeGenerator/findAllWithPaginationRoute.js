@@ -31,7 +31,7 @@ describe('routeGenerator /findAllWithPagination', () => {
         routeGenerator.createFindAllWithPaginationRoute(mockModel, null); // model, rolesAllowed
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName() + '/pagination/{offset}';
+        const routeName =  '/' + mockModel.baseRoute + '/pagination/{offset}';
 
         expect(routes).to.include({ method: 'get', path: routeName });
 

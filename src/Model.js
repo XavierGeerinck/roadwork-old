@@ -6,66 +6,60 @@ var pluralize = require('pluralize');
  * @param base
  * @constructor
  */
-var Model = function (baseModel) {
-    this.baseModel = baseModel;
-    this.baseRoute = pluralize(baseModel.forge().tableName);
-};
-
-Model.prototype.getTableName = function () {
-    return pluralize.singular(this.baseModel.forge().tableName);
-};
-
-Model.prototype.getBaseModel = function () {
-    return this.baseModel;
-};
-
-Model.prototype.getBaseRouteName = function () {
-    return this.baseRoute;
-};
-
-Model.prototype.findAllByUserId = function (userId) {
-    if (this.getTableName() === 'user') {
-        return this.baseModel.where('id', userId).fetchAll();
-    } else {
-        return this.baseModel.where('user_id', userId).fetchAll();
+class Model {
+    constructor (baseModel) {
+        this.baseModel = baseModel;
+        this.baseRoute = pluralize(baseModel.forge().tableName);
     }
-};
 
-Model.prototype.findAll = function () {
-    return this.baseModel.fetchAll();
-};
+    get tableName () {
+        return pluralize.singular(this.baseRoute);
+    }
 
-Model.prototype.findAllWithPagination = function (offset, limit) {
-    return this.baseModel.fetchPage({ offset: offset, limit: limit });
-};
+    findAllByUserId (userId) {
+        if (this.tableName === 'user') {
+            return this.baseModel.where('id', userId).fetchAll();
+        } else {
+            return this.baseModel.where('user_id', userId).fetchAll();
+        }
+    }
 
-Model.prototype.findAllByUserIdWithPagination = function (userId, offset, limit) {
-    return this.baseModel.where('user_id', userId).fetchPage({ offset: offset, limit: limit });
-};
+    findAll () {
+        return this.baseModel.fetchAll();
+    }
 
-Model.prototype.findOneById = function (id) {
-    return this.baseModel.where({ id: id }).fetch();
-};
+    findAllWithPagination (offset, limit) {
+        return this.baseModel.fetchPage({ offset: offset, limit: limit });
+    }
 
-Model.prototype.createObject = function (data){
-    return this.baseModel.forge(data).save();
-};
+    findAllByUserIdWithPagination (userId, offset, limit) {
+        return this.baseModel.where('user_id', userId).fetchPage({ offset: offset, limit: limit });
+    }
 
-Model.prototype.update = function (id, data) {
-    data.id = id;
-    return this.baseModel.where({ id: id }).save(data, { patch: true });
-};
+    findOneById (id) {
+        return this.baseModel.where({ id: id }).fetch();
+    }
 
-Model.prototype.delete = function (id) {
-    return this.baseModel.where({ id: id }).destroy();
-};
+    createObject (data) {
+        return this.baseModel.forge(data).save();
+    }
 
-Model.prototype.count = function () {
-    return this.baseModel.count().then(function (count) { return Promise.resolve({ count: count })});
-};
+    update (id, data) {
+        data.id = id;
+        return this.baseModel.where({ id: id }).save(data, { patch: true });
+    }
 
-Model.prototype.countByUserId = function (userId) {
-    return this.baseModel.where('user_id', userId).count().then(function (count) { return Promise.resolve({ count: count })});
-};
+    delete (id) {
+        return this.baseModel.where({ id: id }).destroy();
+    }
+
+    count () {
+        return this.baseModel.count().then(function (count) { return Promise.resolve({ count: count })});
+    }
+
+    countByUserId (userId) {
+        return this.baseModel.where('user_id', userId).count().then(function (count) { return Promise.resolve({ count: count })});
+    }
+}
 
 module.exports = Model;

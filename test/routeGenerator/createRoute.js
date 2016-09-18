@@ -34,7 +34,7 @@ describe('routeGenerator /create', () => {
         routeGenerator.createCreateRoute(mockModel, null); // model, rolesAllowed
 
         var routes = server.table()[0].table;
-        const routeName =  '/' + mockModel.getBaseRouteName();
+        const routeName =  '/' + mockModel.baseRoute;
 
         expect(routes).to.include({ method: 'post', path: routeName });
 
