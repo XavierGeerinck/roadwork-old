@@ -120,6 +120,15 @@ Adds the bearer authentication to the server authentication. This requires the r
 
 The system will then look into the `user_session` table and confirm  the `user` object.
 
+# RBAC Definition
+
+* **Principal:** The subject, or the person who the roles applies to (example: administrator, user, ...)
+* **Action:** What is happening? create, put, delete, ...
+* **Resource:** The object where it is happening on
+* **Context:** Extra constraints, such as only allow during midnight  
+
+Schema convention: `<principals> CAN <actions> <resources> WHEN <conditions>`
+
 # Route scheme
 Routes are generated on the plural name of the base model separated by _ on the capital letters.
 
