@@ -35,8 +35,8 @@
     "sinon": "^1.17.5"
   },
   "scripts": {
-    "test": "lab -t 100",
-    "test-cov-html": "lab -r html -o coverage.html"
+    "test": "lab -a code -t 100 -L",
+    "test-cov-html": "lab -a code -r html -o coverage.html"
   },
   "main": "index.js"
 }
