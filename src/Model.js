@@ -40,17 +40,30 @@ class Model {
         return this.baseModel.where({ id: id }).fetch();
     }
 
+    findOneByIdAndUserId (id, userId) {
+        return this.baseModel.where({ id: id, user_id: userId }).fetch();
+    }
+
     createObject (data) {
         return this.baseModel.forge(data).save();
     }
 
-    update (id, data) {
+    updateById (id, data) {
         data.id = id;
         return this.baseModel.where({ id: id }).save(data, { patch: true });
     }
 
-    delete (id) {
+    updateByIdAndUserId (id, userId, data) {
+        data.id = id;
+        return this.baseModel.where({ id: id, user_id: userId }).save(data, { patch: true });
+    }
+
+    destroyById (id) {
         return this.baseModel.where({ id: id }).destroy();
+    }
+
+    destroyByIdAndUserId (id, userId) {
+        return this.baseModel.where({ id: id, user_id: userId }).destroy();
     }
 
     count () {
