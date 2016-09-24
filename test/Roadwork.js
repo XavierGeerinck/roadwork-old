@@ -12,6 +12,7 @@ const before = lab.before;
 const beforeEach = lab.beforeEach;
 const after = lab.after;
 const expect = Code.expect;
+const bookshelfHelper = require('./helpers/orm-bookshelf');
 
 const Roadwork = require('..');
 
@@ -20,7 +21,6 @@ describe('Module', () => {
 
     beforeEach((done) => {
         server = require('./helpers/server-hapi').init();
-        bookshelfHelper = require('./helpers/orm-bookshelf');
         roadwork = new Roadwork(server, bookshelfHelper.engine);
 
         done();
