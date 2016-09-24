@@ -80,17 +80,17 @@ class RouteGenerator {
 
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        return reply(model.findAll());
+                        reply(model.findAll());
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        return reply(model.findAllByUserId(request.auth.credentials.get('id')));
+                        reply(model.findAllByUserId(request.auth.credentials.get('id')));
                         break;
                     case accessScopesEnum.NO_ACCESS:
-                        return reply(Boom.unauthorized());
+                        reply(Boom.unauthorized());
                         break;
                     // The default is that we have the ALL_ACCESS scope
                     default:
-                        return reply(model.findAll());
+                        reply(model.findAll());
                 }
             }
         };
@@ -123,14 +123,14 @@ class RouteGenerator {
 
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        return reply(model.findAllWithPagination(offset, limit));
+                        reply(model.findAllWithPagination(offset, limit));
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        return reply(model.findAllByUserIdWithPagination(request.auth.credentials.get('id'), offset, limit));
+                        reply(model.findAllByUserIdWithPagination(request.auth.credentials.get('id'), offset, limit));
                         break;
                     case accessScopesEnum.NO_ACCESS:
                     default:
-                        return reply(Boom.unauthorized());
+                        reply(Boom.unauthorized());
                 }
             }
         };
@@ -155,10 +155,10 @@ class RouteGenerator {
 
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        return reply(model.findOneById(id));
+                        reply(model.findOneById(id));
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        return reply(model.findOneByIdAndUserId(id, request.auth.credentials.get('id')));
+                        reply(model.findOneByIdAndUserId(id, request.auth.credentials.get('id')));
                         // self.authentication.hasAccessToRow(request, rolesAllowed, model)
                         // .then((hasAccess) => {
                         //     if (hasAccess) {
@@ -170,7 +170,7 @@ class RouteGenerator {
                         break;
                     case accessScopesEnum.NO_ACCESS:
                     default:
-                        return reply(Boom.unauthorized());
+                        reply(Boom.unauthorized());
                 }
             }
         };
@@ -194,11 +194,11 @@ class RouteGenerator {
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
                     case accessScopesEnum.OWNER_ACCESS:
-                        return reply(model.createObject(request.payload));
+                        reply(model.createObject(request.payload));
                         break;
                     case accessScopesEnum.NO_ACCESS:
                     default:
-                        return reply(Boom.unauthorized());
+                        reply(Boom.unauthorized());
                 }
             }
         };
@@ -222,14 +222,14 @@ class RouteGenerator {
 
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        return reply(model.updateById(id, request.payload));
+                        reply(model.updateById(id, request.payload));
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        return reply(model.updateByIdAndUserId(id, request.auth.credentials.get('id')));
+                        reply(model.updateByIdAndUserId(id, request.auth.credentials.get('id')));
                         break;
                     case accessScopesEnum.NO_ACCESS:
                     default:
-                        return reply(Boom.unauthorized());
+                        reply(Boom.unauthorized());
                 }
             }
         };
@@ -253,14 +253,14 @@ class RouteGenerator {
 
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        return reply(model.destroyById(id));
+                        reply(model.destroyById(id));
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        return reply(model.destroyByIdAndUserId(id, request.auth.credentials.get('id')));
+                        reply(model.destroyByIdAndUserId(id, request.auth.credentials.get('id')));
                         break;
                     case accessScopesEnum.NO_ACCESS:
                     default:
-                        return reply(Boom.unauthorized());
+                        reply(Boom.unauthorized());
                 }
             }
         };
@@ -283,14 +283,14 @@ class RouteGenerator {
 
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        return reply(model.count());
+                        reply(model.count());
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        return reply(model.countByUserId(request.auth.credentials.get('id')));
+                        reply(model.countByUserId(request.auth.credentials.get('id')));
                         break;
                     case accessScopesEnum.NO_ACCESS:
                     default:
-                        return reply(Boom.unauthorized());
+                        reply(Boom.unauthorized());
                 }
             }
         };

@@ -38,8 +38,6 @@ class Model {
     }
 
     findOneById (id) {
-        let whereResult = this.baseModel.where({ 'id': id });
-        console.log(whereResult);
         return this.baseModel.where({ 'id': id }).fetch();
     }
 

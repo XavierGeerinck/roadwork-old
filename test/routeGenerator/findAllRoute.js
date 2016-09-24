@@ -115,10 +115,29 @@ describe('routeGenerator /findAll', () => {
         });
 
         it('should call model.findAll when we have ALL_ACCESS', (done) => {
+            let stub = sinon.stub(routeGenerator, 'getAccessScope', (model, rolesAllowed) => {
+                return -1; // Return unexisting scope to trigger default
+            });
+
             let options = routeGenerator.generateFindAll(mockModel, [ 'user' ]); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal('findAll_called');
+                stub.restore();
+                done();
+            });
+        });
+
+        it('should call model.findAll when we have DEFAULT', (done) => {
+            let stub = sinon.stub(routeGenerator, 'getAccessScope', (model, rolesAllowed) => {
+                return -1; // Return unexisting scope to trigger default
+            });
+
+            let options = routeGenerator.generateFindAll(mockModel); // model, rolesAllowed
+
+            options.handler(request, (result) => {
+                expect(result).to.equal('findAll_called');
+                stub.restore();
                 done();
             });
         });
