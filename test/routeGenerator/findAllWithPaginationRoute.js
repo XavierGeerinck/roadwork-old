@@ -23,13 +23,34 @@ const Boom = require('boom');
 describe('routeGenerator /findAllWithPagination', () => {
     let server, roadworkAuthentication, hapiAdapter, routeGenerator, routeGeneratorWithoutAuthentication;
 
+    const pagination = {
+        offset: 1,
+        limit: 10,
+        rowCount: 3,
+        pageCount: 1
+    };
+
     const mockModel = {
         baseRoute: 'mocks',
         findAllWithPagination: function (payload) {
-            return 'findAllWithPagination_called';
+            return Promise.resolve({
+                toJSON: function () {
+                    return [
+                        `findAllWithPagination_called`
+                    ];
+                },
+                pagination: pagination
+            });
         },
         findAllByUserIdWithPagination: function (authCredentialsId) {
-            return `findAllWithPaginationByUserId_called_with_${authCredentialsId}`;
+            return Promise.resolve({
+                toJSON: function () {
+                    return [
+                        `findAllWithPaginationByUserId_called_with_${authCredentialsId}`
+                    ];
+                },
+                pagination: pagination
+            });
         }
     };
 
@@ -134,7 +155,11 @@ describe('routeGenerator /findAllWithPagination', () => {
             let options = routeGenerator.generateFindAllWithPagination(mockModel, [ '$owner' ]); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal(`findAllWithPaginationByUserId_called_with_${request.auth.credentials.get('id')}`);
+                expect(result.results).to.exist();
+                expect(result.pagination).to.exist();
+                expect(result.results).to.be.an.array();
+                expect(result.results[0]).to.equal(`findAllWithPaginationByUserId_called_with_${request.auth.credentials.get('id')}`);
+                expect(result.pagination).to.equal(pagination);
                 done();
             });
         });
@@ -143,7 +168,11 @@ describe('routeGenerator /findAllWithPagination', () => {
             let options = routeGenerator.generateFindAllWithPagination(mockModel, [ 'user' ]); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('findAllWithPagination_called');
+                expect(result.results).to.exist();
+                expect(result.pagination).to.exist();
+                expect(result.results).to.be.an.array();
+                expect(result.results[0]).to.equal('findAllWithPagination_called');
+                expect(result.pagination).to.equal(pagination);
                 done();
             });
         });
@@ -152,7 +181,11 @@ describe('routeGenerator /findAllWithPagination', () => {
             let options = routeGenerator.generateFindAllWithPagination(mockModel, null); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('findAllWithPagination_called');
+                expect(result.results).to.exist();
+                expect(result.pagination).to.exist();
+                expect(result.results).to.be.an.array();
+                expect(result.results[0]).to.equal('findAllWithPagination_called');
+                expect(result.pagination).to.equal(pagination);
                 done();
             });
         });
@@ -161,7 +194,11 @@ describe('routeGenerator /findAllWithPagination', () => {
             let options = routeGeneratorWithoutAuthentication.generateFindAllWithPagination(mockModel, null); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('findAllWithPagination_called');
+                expect(result.results).to.exist();
+                expect(result.pagination).to.exist();
+                expect(result.results).to.be.an.array();
+                expect(result.results[0]).to.equal('findAllWithPagination_called');
+                expect(result.pagination).to.equal(pagination);
                 done();
             });
         });

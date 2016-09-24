@@ -74,7 +74,7 @@ class RouteGenerator {
             handler: (request, reply) => {
                 let accessScope = self.getAccessScope(null, rolesAllowed);
 
-                if (self.authentication) {
+                if (self.authentication && rolesAllowed) {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
                 }
 
@@ -107,7 +107,8 @@ class RouteGenerator {
             config: {
                 validate: {
                     query: {
-                        limit: Joi.number().max(20)
+                        limit: Joi.number().max(20),
+                        access_token: Joi.string().optional()
                     }
                 }
             },
@@ -117,16 +118,30 @@ class RouteGenerator {
 
                 let accessScope = self.getAccessScope(null, rolesAllowed);
 
-                if (self.authentication) {
+                if (self.authentication && rolesAllowed) {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
                 }
 
+                let results;
+
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        reply(model.findAllWithPagination(offset, limit));
+                        model.findAllWithPagination(offset, limit)
+                        .then((results) => {
+                            reply({
+                                results: results.toJSON(),
+                                pagination: results.pagination
+                            });
+                        });
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        reply(model.findAllByUserIdWithPagination(request.auth.credentials.get('id'), offset, limit));
+                        model.findAllByUserIdWithPagination(request.auth.credentials.get('id'), offset, limit)
+                        .then((results) => {
+                            reply({
+                                results: results.toJSON(),
+                                pagination: results.pagination
+                            });
+                        });
                         break;
                     case accessScopesEnum.NO_ACCESS:
                     default:
@@ -149,7 +164,7 @@ class RouteGenerator {
 
                 let accessScope = self.getAccessScope(null, rolesAllowed);
 
-                if (self.authentication) {
+                if (self.authentication && rolesAllowed) {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
                 }
 
@@ -187,7 +202,7 @@ class RouteGenerator {
             handler: (request, reply) => {
                 let accessScope = self.getAccessScope(null, rolesAllowed);
 
-                if (self.authentication) {
+                if (self.authentication && rolesAllowed) {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
                 }
 
@@ -216,7 +231,7 @@ class RouteGenerator {
                 let id = request.params.id;
                 let accessScope = self.getAccessScope(null, rolesAllowed);
 
-                if (self.authentication) {
+                if (self.authentication && rolesAllowed) {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
                 }
 
@@ -247,7 +262,7 @@ class RouteGenerator {
                 let id = request.params.id;
                 let accessScope = self.getAccessScope(null, rolesAllowed);
 
-                if (self.authentication) {
+                if (self.authentication && rolesAllowed) {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
                 }
 
@@ -277,7 +292,7 @@ class RouteGenerator {
             handler: (request, reply) => {
                 let accessScope = self.getAccessScope(null, rolesAllowed);
 
-                if (self.authentication) {
+                if (self.authentication && rolesAllowed) {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
                 }
 

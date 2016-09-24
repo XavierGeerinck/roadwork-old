@@ -76,11 +76,54 @@ Example:
 | ----- | ----------- |
 | `GET /<model>` | Gets all the objects for the specific model, if the _$owner_ role has been added to rolesAllowed, then only the objects where the user has access to will be returned |
 | `GET /<model>/{id}` | Gets the specified object for the given model, if the _$owner_ role has been added to rolesAllowed, then only if the user has access this object will be returned |
-| `GET /<model>/pagination/{offset}?limit={limit}` | Gets all the objects for the specific model starting at a specific id offset and a certain limit, if the _$owner_ route has been added, only the objects where the user has access to will be returned |
+| `GET /<model>/pagination/{offset}?limit={limit}` | Gets all the objects for the specific model starting at a specific id offset and a certain limit, if the _$owner_ route has been added, only the objects where the user has access to will be returned. For an example response, see the responses below.|
 | `POST /<model>` | Creates a specific item for the given model |
 | `PUT /<model>/{id}` | Updates a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can update his/her own object |
 | `DELETE /<model>/{id}` | Deletes a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can delete his/her own object |
 | `GET /<model>/count` | Gets the number of items for the specific model, if the _$owner_ object has been specified, only the amount of items where the owner has access to will be returned |
+
+# Example Responses
+## Pagination
+```json
+{
+  "results": [
+    {
+      "id": 2,
+      "id_social": "10205708189541043",
+      "email": "thebillkidy@gmail.com",
+      "first_name": "Xavier",
+      "middle_name": "",
+      "last_name": "Geerinck",
+      "scope": "admin",
+      "avatar_url": "/images/avatar.png",
+      "is_verified": 1,
+      "email_date_sent": "0000-00-00 00:00:00",
+      "created_at": "2016-02-13T15:10:33.000Z",
+      "updated_at": "2016-02-13T15:10:33.000Z"
+    },
+    {
+      "id": 3,
+      "id_social": null,
+      "email": "satan@devil.org",
+      "first_name": "Satan",
+      "middle_name": "Junior",
+      "last_name": "Devil",
+      "scope": "user",
+      "avatar_url": "/images/avatar.png",
+      "is_verified": 1,
+      "email_date_sent": "0000-00-00 00:00:00",
+      "created_at": "2016-02-13T15:10:33.000Z",
+      "updated_at": "2016-02-13T15:10:33.000Z"
+    }
+  ],
+  "pagination": {
+    "offset": 1,
+    "limit": 10,
+    "rowCount": 3,
+    "pageCount": 1
+  }
+}
+```
 
 # API
 ## generate(model, options)

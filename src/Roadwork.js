@@ -23,10 +23,10 @@ class Roadwork {
 
         // Init bookshelf and add the plugins
         this.bookshelf = bookshelf;
-        this.bookshelf.plugin('pagination');
         this.bookshelf.plugin('virtuals');
         this.bookshelf.plugin('visibility');
         this.bookshelf.plugin('registry');
+        this.bookshelf.plugin('pagination');
     }
 
     getRouteGenerator () {
