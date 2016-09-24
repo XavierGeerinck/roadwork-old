@@ -63,6 +63,25 @@ describe('routeGenerator /create', () => {
 
             done();
         });
+
+        it('should have authentication in the routeoptions if authentication is enabled', (done) => {
+            var options = routeGenerator.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
+
+            expect(options.config).to.exist();
+            expect(options.config.auth).to.exist();
+            expect(options.config.auth.strategy).to.equal(roadworkAuthentication.strategyName);
+
+            done();
+        });
+
+        it('should not have authentication in the routeoptions if authentication is not enabled', (done) => {
+            var options = routeGeneratorWithoutAuthentication.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
+
+            expect(options.config).to.not.exist();
+            //expect(options.config.auth).to.not.exist();
+
+            done();
+        });
     });
 
     describe('handler', () => {
