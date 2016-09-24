@@ -6,33 +6,27 @@ const generateOptionsSchema = require('./schemes/generateOptions');
 const dbConfigSchema = require('./schemes/dbConfig');
 
 class Roadwork {
-    constructor (server, dbConfig) {
-        console.log(dbConfig);
+    constructor (server, bookshelf) {
         if (!server) {
             throw new Error('No http engine given!');
+        }
+
+        if (!bookshelf) {
+            throw new Error('database connection not started');
         }
 
         this.authentication = null; // The authentication plugin used
         this.server = server;
         this.models = [];
-        this.dbConfig = dbConfig;
         this.adapter = new HapiAdapter(this.server);
         this.routeGenerator = new RouteGenerator(this.adapter);
-    }
 
-    /**
-     * Initialize the library, this will start the database connection
-     */
-    init () {
-        console.log(this.dbConfig);
-        Joi.validate(this.dbConfig, dbConfigSchema, { convert: true }, (err, value) => {
-            if (err) {
-                throw new Error(err);
-            }
-
-            let knex = require('knex')(value);
-            this.dbConnection = require('bookshelf')(knex);
-        });
+        // Init bookshelf and add the plugins
+        this.bookshelf = bookshelf;
+        this.bookshelf.plugin('pagination');
+        this.bookshelf.plugin('virtuals');
+        this.bookshelf.plugin('visibility');
+        this.bookshelf.plugin('registry');
     }
 
     getRouteGenerator () {
@@ -50,23 +44,19 @@ class Roadwork {
                 return reject(new Error('Missing the authenticationLibrary'));
             }
 
-            if (!bookshelf) {
-                return reject(new Error('Missing the bookshelf object'));
-            }
-
-            this.authentication = new AuthenticationLibrary(this.server, bookshelf);
+            this.authentication = new AuthenticationLibrary(this.server, this.bookshelf);
             this.routeGenerator.authentication = this.authentication;
 
             // Register the plugin in the httpserver
             this.adapter.registerPlugin(this.authentication)
-                .then(() => {
-                    // Init the authentication library, this will create required tables, ...
-                    return this.authentication.init();
-                })
-                .then(() => {
-                    console.info('[x] Database scheme is valid');
-                    return resolve();
-                });
+            .then(() => {
+                // Init the authentication library, this will create required tables, ...
+                return this.authentication.init();
+            })
+            .then(() => {
+                console.info('[x] Database scheme is valid');
+                return resolve();
+            });
         });
     };
 

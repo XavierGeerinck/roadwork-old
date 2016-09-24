@@ -28,7 +28,7 @@ class HapiAdapter {
                     this.httpServer.auth.strategy(plugin.strategyName, plugin.strategyName);
                     console.info('--> Added authentication: ' + plugin.strategyName);
                 } catch (err) {
-                    console.info('--> [IGNORED] ' +  plugin.strategyName + '  authentication already registered, ignoring');
+                    //console.info('--> [IGNORED] ' +  plugin.strategyName + '  authentication already registered, ignoring');
                     // Ignore error, it can happen when we call the addAuthentication function twice
                 }
 

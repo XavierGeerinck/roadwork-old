@@ -1,6 +1,19 @@
-var Promise = require('bluebird');
-var knex = require('knex')({});
+// In-memory db, if ever needed install sqlite3 as a dep!
+// var knex = require('knex')({
+//     client: 'sqlite3',
+//     connection: ':memory:'
+// });
+
+var knex = require('knex')({
+});
+
 var bookshelf = require('bookshelf')(knex);
+
+// Plugin registration
+bookshelf.plugin('pagination');
+bookshelf.plugin('visibility');
+bookshelf.plugin('registry');
+bookshelf.plugin('virtuals');
 
 const User = bookshelf.Model.extend({
     tableName: 'users'

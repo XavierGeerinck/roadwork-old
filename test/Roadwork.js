@@ -13,21 +13,34 @@ const beforeEach = lab.beforeEach;
 const after = lab.after;
 const expect = Code.expect;
 
+const Roadwork = require('..');
+
 describe('Module', () => {
-    let server, roadwork;
+    let server, bookshelf, roadwork;
 
     beforeEach((done) => {
         server = require('./helpers/server-hapi').init();
-        roadwork = require('..')(server);
+        bookshelfHelper = require('./helpers/orm-bookshelf');
+        roadwork = new Roadwork(server, bookshelfHelper.engine);
 
         done();
     });
 
     it('should return an error if no server object was passed', (done) => {
         try {
-            const Api = require('..')();
+            let Api = new Roadwork();
         } catch (err) {
             expect(err.message).to.equal('No http engine given!');
+        }
+
+        done();
+    });
+
+    it('should throw an error when no database configuration was passed', (done) => {
+        try {
+            let Api = new Roadwork(server);
+        } catch (err) {
+            expect(err.message).to.equal('database connection not started');
         }
 
         done();
@@ -63,8 +76,7 @@ describe('Module', () => {
     });
 
     it('should return an error on an incorrect options scheme', (done) => {
-        let ORM = require('./helpers/orm-bookshelf');
-        let User = ORM.Models.User;
+        let User = bookshelfHelper.Models.User;
 
         try {
             roadwork.generate(User, { something: 'wrong' });
@@ -88,21 +100,24 @@ describe('Module', () => {
         });
     });
 
-    it('should still work with bearer authentication if the plugin is already registered', (done) => {
-        const roadworkAuthentication = require('roadwork-authentication');
-        const stub = sinon.stub(roadworkAuthentication.prototype, 'init', function () { return Promise.resolve(); });
-
-        roadwork.addAuthentication(require('roadwork-authentication'), {})
-        .then(() => {
-            return roadwork.addAuthentication(require('roadwork-authentication'), {})
-        })
-        .then(() => {
-            stub.restore();
-            sinon.assert.calledWith(stub);
-
-            done();
-        });
-    });
+    // it('should still work with bearer authentication if the plugin is already registered', (done) => {
+    //     const roadworkAuthentication = require('roadwork-authentication');
+    //     const stub = sinon.stub(roadworkAuthentication.prototype, 'init', function () { return Promise.resolve(); });
+    //
+    //     roadwork.addAuthentication(require('roadwork-authentication'))
+    //     .then(() => {
+    //         return roadwork.addAuthentication(require('roadwork-authentication'))
+    //     })
+    //     .then(() => {
+    //         stub.restore();
+    //         sinon.assert.calledWith(stub);
+    //
+    //         done();
+    //     })
+    //     .catch((err) => {
+    //         console.error(err);
+    //     });
+    // });
 
     it('should throw an error when adding authentication if no library plugin was specified', (done) => {
         roadwork.addAuthentication(null, {})
@@ -112,17 +127,8 @@ describe('Module', () => {
         });
     });
 
-    it('should throw an error when no database configuration was passed', (done) => {
-        roadwork.addAuthentication(require('roadwork-authentication'))
-        .catch((err) => {
-            expect(err.message).to.equal("Missing the bookshelf object");
-            done();
-        });
-    });
-
     it('should not register the findAll route if it is not enabled in the config', (done) => {
-        let ORM = require('./helpers/orm-bookshelf');
-        let User = ORM.Models.User;
+        let User = bookshelfHelper.Models.User;
 
         roadwork.generate(User, { routes: {
             findAll: {
@@ -140,8 +146,7 @@ describe('Module', () => {
     });
 
     it('should not register the findOne route if it is not enabled in the config', (done) => {
-        let ORM = require('./helpers/orm-bookshelf');
-        let User = ORM.Models.User;
+        let User = bookshelfHelper.Models.User;
 
         roadwork.generate(User, { routes: {
             findOne: {
@@ -159,8 +164,7 @@ describe('Module', () => {
     });
 
     it('should not register the count route if it is not enabled in the config', (done) => {
-        let ORM = require('./helpers/orm-bookshelf');
-        let User = ORM.Models.User;
+        let User = bookshelfHelper.Models.User;
 
         roadwork.generate(User, { routes: {
             count: {
@@ -178,8 +182,7 @@ describe('Module', () => {
     });
 
     it('should not register the findAllWithPagination route if it is not enabled in the config', (done) => {
-        let ORM = require('./helpers/orm-bookshelf');
-        let User = ORM.Models.User;
+        let User = bookshelfHelper.Models.User;
 
         roadwork.generate(User, { routes: {
             findAllWithPagination: {
@@ -197,8 +200,7 @@ describe('Module', () => {
     });
 
     it('should not register the create route if it is not enabled in the config', (done) => {
-        let ORM = require('./helpers/orm-bookshelf');
-        let User = ORM.Models.User;
+        let User = bookshelfHelper.Models.User;
 
         roadwork.generate(User, { routes: {
             create: {
@@ -216,8 +218,7 @@ describe('Module', () => {
     });
 
     it('should not register the update route if it is not enabled in the config', (done) => {
-        let ORM = require('./helpers/orm-bookshelf');
-        let User = ORM.Models.User;
+        let User = bookshelfHelper.Models.User;
 
         roadwork.generate(User, { routes: {
             update: {
@@ -235,8 +236,7 @@ describe('Module', () => {
     });
 
     it('should not register the destroy route if it is not enabled in the config', (done) => {
-        let ORM = require('./helpers/orm-bookshelf');
-        let User = ORM.Models.User;
+        let User = bookshelfHelper.Models.User;
 
         roadwork.generate(User, { routes: {
             delete: {

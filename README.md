@@ -8,28 +8,30 @@
 This plugin requires you to have `Bookshelf.js` installed and configured. The reason for this is because it depends on the models to fetch table information and configure the routes correctly. In the future this requisite will be removed when there is time for it.
 
 ## Installation
-1. Require the library `const api = require('roadwork')(serverObject)`
+1. Require the library `const api = require('roadwork')(serverObject, require('bookshelf')(require('knex')(config.database)))`
 2. Pass the `Bookshelf` models to the generate method to create the API calls, with: `api.generate(User)`
+
+Database is a database connection object as described here: http://knexjs.org/#Installation-client
 
 ## Authentication
 ### Enable
-To enable authentication, the only thing you need to do is call the `Api.addAuthentication(authenticationLibrary, dbConfiguration)` object. This will automatically create the user and user_session tables if they do not exist yet.
+To enable authentication, the only thing you need to do is call the `Api.addAuthentication(authenticationLibrary)` object. This will automatically create the user and user_session tables if they do not exist yet.
 
 Once this is done, the addAuthentication will return a promise stating that it is done, whereafter you can generate the routings with their detailed permissions such as these routes:
 
 ```javascript
 // Create API routes
-var api = require('roadwork')(exports.server);
-api.addAuthentication(require('roadwork-authentication'), require('./src/db'))
+let api = new Roadwork(exports.server, require('bookshelf')(require('knex')(config.database)));
+api.addAuthentication(require('roadwork-authentication'))
 .then(() => {
     api.generate(require('./src/db/models/User'), {
         routes: {
             delete:  { allowedRoles: [ 'admin' ] },
             update:  { allowedRoles: [ 'admin' ] },
             findAll: { allowedRoles: [ 'admin', '$owner' ] },
+            findAllWithPagination: { allowedRoles: [ 'admin', '$owner' ] },
             findOne: { allowedRoles: [ 'admin', '$owner' ] },
-            count:   { allowedRoles: [ 'admin', '$owner' ] },
-            findAllWithPagination: { allowedRoles: [ 'admin', '$owner' ] }
+            count:   { allowedRoles: [ 'admin', '$owner' ] }
         }
     });
     api.generate(require('./src/db/models/UserSession'), {
@@ -37,9 +39,9 @@ api.addAuthentication(require('roadwork-authentication'), require('./src/db'))
             delete:  { allowedRoles: [ 'admin' ] },
             update:  { allowedRoles: [ 'admin' ] },
             findAll: { allowedRoles: [ 'admin', '$owner' ] },
+            findAllWithPagination: { allowedRoles: [ 'admin', '$owner' ] },
             findOne: { allowedRoles: [ 'admin', '$owner' ] },
-            count:   { allowedRoles: [ 'admin', '$owner' ] },
-            findAllWithPagination: { allowedRoles: [ 'admin', '$owner' ] }
+            count:   { allowedRoles: [ 'admin', '$owner' ] }
         }
     });
 
