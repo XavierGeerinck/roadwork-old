@@ -1,4 +1,5 @@
 const pluralize = require('pluralize');
+const Boom = require('boom');
 
 /**
  * This is the wrapper class for our base, we abstract this so that we are able to change
@@ -17,11 +18,8 @@ class Model {
     }
 
     findAllByUserId (userId) {
-        if (this.tableName === 'user') {
-            return this.baseModel.where({ 'id': userId }).fetchAll();
-        } else {
-            return this.baseModel.where({ 'user_id': userId }).fetchAll();
-        }
+        let where = (this.tableName === 'user') ? { 'id': userId } : { 'user_id': userId };
+        return this.baseModel.where(where).fetchAll();
     }
 
     findAll () {
@@ -33,8 +31,8 @@ class Model {
     }
 
     findAllByUserIdWithPagination (userId, offset, limit) {
-        // TODO: Add case for user table
-        return this.baseModel.where({ 'user_id': userId }).fetchPage({ offset: offset, limit: limit });
+        let where = (this.tableName === 'user') ? { 'id': userId } : { 'user_id': userId };
+        return this.baseModel.where(where).fetchPage({ offset: offset, limit: limit });
     }
 
     findOneById (id) {
@@ -42,8 +40,8 @@ class Model {
     }
 
     findOneByIdAndUserId (id, userId) {
-        // TODO: Add case for user table
-        return this.baseModel.where({ id: id, user_id: userId }).fetch();
+        let where = (this.tableName === 'user') ? { 'id': userId } : { 'id': id, 'user_id': userId };
+        return this.baseModel.where(where).fetch();
     }
 
     createObject (data) {
@@ -55,19 +53,54 @@ class Model {
         return this.baseModel.where({ id: id }).save(data, { patch: true });
     }
 
+    /**
+     * Scope = OWNER_ACCESS
+     *
+     * If editing the user table, then make sure that id === userId
+     * Else just edit where user_id = given
+     * @param id
+     * @param userId
+     * @param data
+     * @returns {*}
+     */
     updateByIdAndUserId (id, userId, data) {
         data.id = id;
-        // TODO: Add case for user table
-        return this.baseModel.where({ id: id, user_id: userId }).save(data, { patch: true });
+
+        if (this.tableName === 'user') {
+            if (id != userId) {
+                return Promise.resolve(Boom.unauthorized());
+            }
+
+            return this.baseModel.where({ 'id': id }).save(data, { patch: true });
+        } else {
+            return this.baseModel.where({ 'id': id, 'user_id': userId }).save(data, { patch: true });
+        }
     }
 
     destroyById (id) {
         return this.baseModel.where({ id: id }).destroy();
     }
 
+    /**
+     * Scope = OWNER_ACCESS
+     *
+     * If deleting from the user table, then make sure that id === userId
+     * Else just edit where user_id = given
+     * @param id
+     * @param userId
+     * @param data
+     * @returns {*}
+     */
     destroyByIdAndUserId (id, userId) {
-        // TODO: Add case for user table
-        return this.baseModel.where({ id: id, user_id: userId }).destroy();
+        if (this.tableName === 'user') {
+            if (id != userId) {
+                return Promise.resolve(Boom.unauthorized());
+            }
+
+            return this.baseModel.where({ 'id': id }).destroy();
+        } else {
+            return this.baseModel.where({ 'id': id, 'user_id': userId }).destroy();
+        }
     }
 
     count () {
@@ -75,8 +108,8 @@ class Model {
     }
 
     countByUserId (userId) {
-        // TODO: Add case for user table
-        return this.baseModel.where({ 'user_id': userId }).count().then(function (count) { return Promise.resolve({ count: count })});
+        let where = (this.tableName === 'user') ? { 'id': userId } : { 'user_id': userId };
+        return this.baseModel.where(where).count().then(function (count) { return Promise.resolve({ count: count })});
     }
 }
 

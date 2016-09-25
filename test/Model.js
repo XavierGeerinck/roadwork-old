@@ -64,6 +64,12 @@ describe('Model', () => {
                 },
                 count:  function () {
                     return Promise.resolve(`count_called_with_${JSON.stringify(obj)}`);
+                },
+                save: function (data) {
+                    return Promise.resolve(`save_called_with_${JSON.stringify(obj)}_and_data_${JSON.stringify(data)}`);
+                },
+                destroy: function () {
+                    return Promise.resolve(`destroy_called_with_${JSON.stringify(obj)}`);
                 }
             }
         });
@@ -128,8 +134,16 @@ describe('Model', () => {
     });
 
     describe('findAllByUserIdWithPagination', () => {
-        it('should call where(user_id) and fetchPage', (done) => {
+        it('should call where(id: id) since it\'s the user table and fetchPage', (done) => {
             userModel.findAllByUserIdWithPagination(666, 10, 999)
+            .then((result) => {
+                expect(result).to.equal('fetchPage_called_with_{"id":666}');
+                done();
+            });
+        });
+
+        it('should call where(id: id) since it\'s the user table and fetchPage', (done) => {
+            userSessionModel.findAllByUserIdWithPagination(666, 10, 999)
             .then((result) => {
                 expect(result).to.equal('fetchPage_called_with_{"user_id":666}');
                 done();
@@ -146,8 +160,16 @@ describe('Model', () => {
             });
         });
 
-        it('should call where(id, user_id) and fetch', (done) => {
+        it('should call where(id = userId) since it\'s the user table and fetch', (done) => {
             userModel.findOneByIdAndUserId(693, 666)
+            .then((result) => {
+                expect(result).to.equal('fetch_called_with_{"id":666}');
+                done();
+            });
+        });
+
+        it('should call where(id, user_id) and fetch', (done) => {
+            userSessionModel.findOneByIdAndUserId(693, 666)
             .then((result) => {
                 expect(result).to.equal('fetch_called_with_{"id":693,"user_id":666}');
                 done();
@@ -183,10 +205,27 @@ describe('Model', () => {
             });
         });
 
-        it('should call where(id) and save(data with patch) if Model.updateByIdAndUserId', (done) => {
-            userModel.updateByIdAndUserId(693, 666, { 'email': "satan@devil.org", tail: true })
+        it('should call where(id = id, user_id = userId) if not user table and save(data with patch) if Model.updateByIdAndUserId', (done) => {
+            userSessionModel.updateByIdAndUserId(693, 666, { 'email': "satan@devil.org", tail: true })
             .then((result) => {
                 expect(result).to.equal('save_called_with_{"id":693,"user_id":666}_and_data_{"email":"satan@devil.org","tail":true,"id":693}');
+                done();
+            });
+        });
+
+        it('should call where(userId) if user table (but userId should equal id) and save(data with patch) if Model.updateByIdAndUserId', (done) => {
+            userModel.updateByIdAndUserId(666, 666, { 'email': "satan@devil.org", tail: true })
+            .then((result) => {
+                expect(result).to.equal('save_called_with_{"id":666}_and_data_{"email":"satan@devil.org","tail":true,"id":666}');
+                done();
+            });
+        });
+
+        it('should return unauthorized if user table (but userId is not equal id) and save(data with patch) if Model.updateByIdAndUserId', (done) => {
+            userModel.updateByIdAndUserId(693, 666, { 'email': "satan@devil.org", tail: true })
+            .then((result) => {
+                expect(result.output.payload.error).to.equal('Unauthorized');
+                expect(result.output.payload.statusCode).to.equal(401);
                 done();
             });
         });
@@ -201,10 +240,27 @@ describe('Model', () => {
             });
         });
 
-        it('should call where(id) and destroy() if Model.destroyByIdAndUserId', (done) => {
-            userModel.destroyByIdAndUserId(693, 666)
+        it('should call where(id = id, user_id = userId) if not user table and destroy() if Model.destroyByIdAndUserId', (done) => {
+            userSessionModel.destroyByIdAndUserId(693, 666, { 'email': "satan@devil.org", tail: true })
             .then((result) => {
                 expect(result).to.equal('destroy_called_with_{"id":693,"user_id":666}');
+                done();
+            });
+        });
+
+        it('should call where(userId) if user table (but userId should equal id) and destroy() if Model.destroyByIdAndUserId', (done) => {
+            userModel.destroyByIdAndUserId(666, 666, { 'email': "satan@devil.org", tail: true })
+            .then((result) => {
+                expect(result).to.equal('destroy_called_with_{"id":666}');
+                done();
+            });
+        });
+
+        it('should return unauthorized if user table (but userId is not equal id) and destroy() if Model.destroyByIdAndUserId', (done) => {
+            userModel.destroyByIdAndUserId(693, 666, { 'email': "satan@devil.org", tail: true })
+            .then((result) => {
+                expect(result.output.payload.error).to.equal('Unauthorized');
+                expect(result.output.payload.statusCode).to.equal(401);
                 done();
             });
         });
@@ -229,10 +285,19 @@ describe('Model', () => {
             });
         });
 
-        it('should return the count as an object { count: \<count\> } for countByUserId', (done) => {
-            userModel.countByUserId(666)
+        it('should return the count as an object { count: \<count\> } where(user_id = userId) if it\s not the user table for countByUserId', (done) => {
+            userSessionModel.countByUserId(666)
             .then(function (result) {
                 expect(result.count).to.equal('count_called_with_{"user_id":666}');
+
+                done();
+            });
+        });
+
+        it('should return the count as an object { count: \<count\> } where(id = userId) if it\s the user table for countByUserId', (done) => {
+            userModel.countByUserId(666)
+            .then(function (result) {
+                expect(result.count).to.equal('count_called_with_{"id":666}');
 
                 done();
             });
