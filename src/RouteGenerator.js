@@ -10,16 +10,16 @@ class RouteGenerator {
         this.authentication = authentication;
     }
 
-    processRoles (model, routeOptions.allowedRoles, routeOptions) {
-        if (routeOptions.allowedRoles && this.authentication) {
-            routeOptions.config = {};
-            routeOptions.config.auth = {
+    processRoles (model, allowedRoles, routeConfig) {
+        if (allowedRoles && this.authentication) {
+            routeConfig.config = {};
+            routeConfig.config.auth = {
                 strategy: this.authentication.strategyName,
-                scope: routeOptions.allowedRoles
+                scope: allowedRoles
             };
         }
 
-        return routeOptions;
+        return routeConfig;
     }
 
     /**
