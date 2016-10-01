@@ -3,11 +3,13 @@
 const Joi = require('joi');
 const Boom = require('boom');
 const accessScopesEnum = require('./enums/accessScopes');
+const rootOptionsSchema = require('./schemes/rootOptions');
 
 class RouteGenerator {
-    constructor (adapter, authentication) {
+    constructor (adapter, authentication, options) {
         this.adapter = adapter;
         this.authentication = authentication;
+        this.options = Joi.validate(options, rootOptionsSchema, { convert: true }).value; // No error reporting here, it gets caught by the main framework
     }
 
     processRoles (model, allowedRoles, routeConfig) {
@@ -66,11 +68,13 @@ class RouteGenerator {
     }
 
     generateFindAll (model, routeOptions) {
+        routeOptions = routeOptions || {};
+
         var self = this;
 
         var routeConfig = {
             method: 'GET',
-            path: '/' + model.baseRoute,
+            path: `${this.options.basePath}/${model.baseRoute}`,
             handler: (request, reply) => {
                 let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
@@ -99,11 +103,12 @@ class RouteGenerator {
     }
 
     generateFindAllWithPagination (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
         var routeConfig = {
             method: 'GET',
-            path: '/' + model.baseRoute + '/pagination/{offset}',
+            path: `${this.options.basePath}/${model.baseRoute}/pagination/{offset}`,
             config: {
                 validate: {
                     query: {
@@ -154,11 +159,12 @@ class RouteGenerator {
     }
 
     generateFindOne (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
         var routeConfig = {
             method: 'GET',
-            path: '/' + model.baseRoute + '/{id}',
+            path: `${this.options.basePath}/${model.baseRoute}/{id}`,
             handler: (request, reply) => {
                 var id = request.params.id;
 
@@ -194,11 +200,12 @@ class RouteGenerator {
     }
 
     generateCreate (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
         var routeConfig = {
             method: 'POST',
-            path: '/' + model.baseRoute,
+            path: `${this.options.basePath}/${model.baseRoute}`,
             handler: (request, reply) => {
                 let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
@@ -222,11 +229,12 @@ class RouteGenerator {
     }
 
     generateUpdate (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
         var routeConfig = {
             method: 'PUT',
-            path: '/' + model.baseRoute + '/{id}',
+            path: `${this.options.basePath}/${model.baseRoute}/{id}`,
             handler: (request, reply) => {
                 let id = request.params.id;
                 let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
@@ -253,11 +261,12 @@ class RouteGenerator {
     }
 
     generateDelete (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
         var routeConfig = {
             method: 'DELETE',
-            path: '/' + model.baseRoute + '/{id}',
+            path: `${this.options.basePath}/${model.baseRoute}/{id}`,
             handler: (request, reply) => {
                 let id = request.params.id;
                 let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
@@ -284,11 +293,12 @@ class RouteGenerator {
     }
 
     generateCount (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
         var routeConfig = {
             method: 'GET',
-            path: `/${model.baseRoute}/count`,
+            path: `${this.options.basePath}/${model.baseRoute}/count`,
             handler: (request, reply) => {
                 let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 

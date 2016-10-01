@@ -65,7 +65,7 @@ describe('routeGenerator /create', () => {
         });
 
         it('should have authentication in the routeoptions if authentication is enabled', (done) => {
-            var options = routeGenerator.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGenerator.generateCount(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config).to.exist();
             expect(options.config.auth).to.exist();
@@ -75,10 +75,19 @@ describe('routeGenerator /create', () => {
         });
 
         it('should not have authentication in the routeoptions if authentication is not enabled', (done) => {
-            var options = routeGeneratorWithoutAuthentication.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGeneratorWithoutAuthentication.generateCreate(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config).to.not.exist();
-            //expect(options.config.auth).to.not.exist();
+
+            done();
+        });
+
+        it('should change the basePath if we configured it', (done) => {
+            const basePath = '/newPath';
+            const routeGeneratorNew = new RouteGenerator(hapiAdapter, null, { basePath: basePath });
+            const result = routeGeneratorNew.generateCreate(mockModel, null);
+
+            expect(result.path).to.equal(`${basePath}${defaultRoute}`);
 
             done();
         });
@@ -104,7 +113,7 @@ describe('routeGenerator /create', () => {
         };
 
         it('should return unauthorized when there are no roles passed', (done) => {
-            let options = routeGenerator.generateCreate(mockModel, [ ]); // model, rolesAllowed
+            let options = routeGenerator.generateCreate(mockModel, { allowedRoles: [ ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -113,7 +122,7 @@ describe('routeGenerator /create', () => {
         });
 
         it('should return unauthorized when we have NO_ACCESS', (done) => {
-            let options = routeGenerator.generateCreate(mockModel, [ 'admin' ]); // model, rolesAllowed
+            let options = routeGenerator.generateCreate(mockModel, { allowedRoles: [ 'admin' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -122,7 +131,7 @@ describe('routeGenerator /create', () => {
         });
 
         it('should call model.createByUserId when we have OWNER_ACCESS', (done) => {
-            let options = routeGenerator.generateCreate(mockModel, [ '$owner' ]); // model, rolesAllowed
+            let options = routeGenerator.generateCreate(mockModel, { allowedRoles: [ '$owner' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(`create_called`);
@@ -131,7 +140,7 @@ describe('routeGenerator /create', () => {
         });
 
         it('should call model.create when we have ALL_ACCESS', (done) => {
-            let options = routeGenerator.generateCreate(mockModel, [ 'user' ]); // model, rolesAllowed
+            let options = routeGenerator.generateCreate(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal('create_called');
