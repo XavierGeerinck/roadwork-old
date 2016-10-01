@@ -45,7 +45,7 @@ class RouteGenerator {
         }
 
         if (Array.isArray(userScope)) {
-            for (var scope of userScope) {
+            for (let scope of userScope) {
                 if (scope != '$owner' && allowedRoles.indexOf(scope) > -1) {
                     return accessScopesEnum.ALL_ACCESS;
                 }
@@ -70,9 +70,8 @@ class RouteGenerator {
     generateFindAll (model, routeOptions) {
         routeOptions = routeOptions || {};
 
-        var self = this;
-
-        var routeConfig = {
+        let self = this;
+        let routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}`,
             handler: (request, reply) => {
@@ -104,9 +103,9 @@ class RouteGenerator {
 
     generateFindAllWithPagination (model, routeOptions) {
         routeOptions = routeOptions || {};
-        var self = this;
 
-        var routeConfig = {
+        let self = this;
+        let routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}/pagination/{offset}`,
             config: {
@@ -160,13 +159,13 @@ class RouteGenerator {
 
     generateFindOne (model, routeOptions) {
         routeOptions = routeOptions || {};
-        var self = this;
 
-        var routeConfig = {
+        let self = this;
+        let routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}/{id}`,
             handler: (request, reply) => {
-                var id = request.params.id;
+                let id = request.params.id;
 
                 let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
@@ -201,9 +200,9 @@ class RouteGenerator {
 
     generateCreate (model, routeOptions) {
         routeOptions = routeOptions || {};
-        var self = this;
 
-        var routeConfig = {
+        let self = this;
+        let routeConfig = {
             method: 'POST',
             path: `${this.options.basePath}/${model.baseRoute}`,
             handler: (request, reply) => {
@@ -230,9 +229,9 @@ class RouteGenerator {
 
     generateUpdate (model, routeOptions) {
         routeOptions = routeOptions || {};
-        var self = this;
 
-        var routeConfig = {
+        let self = this;
+        let routeConfig = {
             method: 'PUT',
             path: `${this.options.basePath}/${model.baseRoute}/{id}`,
             handler: (request, reply) => {
@@ -262,9 +261,9 @@ class RouteGenerator {
 
     generateDelete (model, routeOptions) {
         routeOptions = routeOptions || {};
-        var self = this;
 
-        var routeConfig = {
+        let self = this;
+        let routeConfig = {
             method: 'DELETE',
             path: `${this.options.basePath}/${model.baseRoute}/{id}`,
             handler: (request, reply) => {
@@ -294,9 +293,9 @@ class RouteGenerator {
 
     generateCount (model, routeOptions) {
         routeOptions = routeOptions || {};
-        var self = this;
 
-        var routeConfig = {
+        let self = this;
+        let routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}/count`,
             handler: (request, reply) => {
