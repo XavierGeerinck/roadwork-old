@@ -12,16 +12,16 @@ class RouteGenerator {
         this.options = Joi.validate(options, rootOptionsSchema, { convert: true }).value; // No error reporting here, it gets caught by the main framework
     }
 
-    processRoles (model, rolesAllowed, routeOptions) {
-        if (rolesAllowed && this.authentication) {
-            routeOptions.config = {};
-            routeOptions.config.auth = {
+    processRoles (model, allowedRoles, routeConfig) {
+        if (allowedRoles && this.authentication) {
+            routeConfig.config = {};
+            routeConfig.config.auth = {
                 strategy: this.authentication.strategyName,
-                scope: rolesAllowed
+                scope: allowedRoles
             };
         }
 
-        return routeOptions;
+        return routeConfig;
     }
 
     /**
@@ -30,36 +30,36 @@ class RouteGenerator {
      * - OWNER_ACCESS: We have $owner access, so we need to return all the objects that we own
      * - NO_ACCESS: Not authorized to access this route
      * @param userScope the scopes that the user has
-     * @param rolesAllowed the roles that are allowed to a certain route
+     * @param routeOptions.allowedRoles the roles that are allowed to a certain route
      * @param model
      */
-    getAccessScope (userScope, rolesAllowed) {
+    getAccessScope (userScope, allowedRoles) {
         // if no user scope and rolesAllowed has been passed, then we return ALL_ACCESS
-        if (!userScope && !rolesAllowed) {
+        if (!userScope && !allowedRoles) {
             return accessScopesEnum.ALL_ACCESS;
         }
 
         // If no rolesAllowed is specified, we allow everyone!
-        if (!Array.isArray(rolesAllowed) && !rolesAllowed) {
+        if (!Array.isArray(allowedRoles) && !allowedRoles) {
             return accessScopesEnum.ALL_ACCESS;
         }
 
         if (Array.isArray(userScope)) {
             for (var scope of userScope) {
-                if (scope != '$owner' && rolesAllowed.indexOf(scope) > -1) {
+                if (scope != '$owner' && allowedRoles.indexOf(scope) > -1) {
                     return accessScopesEnum.ALL_ACCESS;
                 }
             }
 
-            if (rolesAllowed.indexOf('$owner') > -1) {
+            if (allowedRoles.indexOf('$owner') > -1) {
                 return accessScopesEnum.OWNER_ACCESS;
             }
         } else {
-            if (rolesAllowed.indexOf(userScope) > -1) {
+            if (allowedRoles.indexOf(userScope) > -1) {
                 return accessScopesEnum.ALL_ACCESS;
             }
 
-            if (rolesAllowed.indexOf('$owner') > -1) {
+            if (allowedRoles.indexOf('$owner') > -1) {
                 return accessScopesEnum.OWNER_ACCESS;
             }
         }
@@ -67,17 +67,19 @@ class RouteGenerator {
         return accessScopesEnum.NO_ACCESS;
     }
 
-    generateFindAll (model, rolesAllowed) {
+    generateFindAll (model, routeOptions) {
+        routeOptions = routeOptions || {};
+
         var self = this;
 
-        var routeOptions = {
+        var routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}`,
             handler: (request, reply) => {
-                let accessScope = self.getAccessScope(null, rolesAllowed);
+                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
-                if (self.authentication && rolesAllowed) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
+                if (self.authentication && routeOptions.allowedRoles) {
+                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
                 switch (accessScope) {
@@ -97,13 +99,14 @@ class RouteGenerator {
             }
         };
 
-        return self.processRoles(model, rolesAllowed, routeOptions);
+        return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
     }
 
-    generateFindAllWithPagination (model, rolesAllowed) {
+    generateFindAllWithPagination (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
-        var routeOptions = {
+        var routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}/pagination/{offset}`,
             config: {
@@ -118,10 +121,10 @@ class RouteGenerator {
                 let limit = request.query.limit;
                 let offset = request.params.offset;
 
-                let accessScope = self.getAccessScope(null, rolesAllowed);
+                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
-                if (self.authentication && rolesAllowed) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
+                if (self.authentication && routeOptions.allowedRoles) {
+                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
                 let results;
@@ -152,22 +155,23 @@ class RouteGenerator {
             }
         };
 
-        return self.processRoles(model, rolesAllowed, routeOptions);
+        return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
     }
 
-    generateFindOne (model, rolesAllowed) {
+    generateFindOne (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
-        var routeOptions = {
+        var routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}/{id}`,
             handler: (request, reply) => {
                 var id = request.params.id;
 
-                let accessScope = self.getAccessScope(null, rolesAllowed);
+                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
-                if (self.authentication && rolesAllowed) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
+                if (self.authentication && routeOptions.allowedRoles) {
+                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
                 switch (accessScope) {
@@ -192,20 +196,21 @@ class RouteGenerator {
             }
         };
 
-        return self.processRoles(model, rolesAllowed, routeOptions);
+        return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
     }
 
-    generateCreate (model, rolesAllowed) {
+    generateCreate (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
-        var routeOptions = {
+        var routeConfig = {
             method: 'POST',
             path: `${this.options.basePath}/${model.baseRoute}`,
             handler: (request, reply) => {
-                let accessScope = self.getAccessScope(null, rolesAllowed);
+                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
-                if (self.authentication && rolesAllowed) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
+                if (self.authentication && routeOptions.allowedRoles) {
+                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
                 switch (accessScope) {
@@ -220,21 +225,22 @@ class RouteGenerator {
             }
         };
 
-        return self.processRoles(model, rolesAllowed, routeOptions);
+        return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
     }
 
-    generateUpdate (model, rolesAllowed) {
+    generateUpdate (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
-        var routeOptions = {
+        var routeConfig = {
             method: 'PUT',
             path: `${this.options.basePath}/${model.baseRoute}/{id}`,
             handler: (request, reply) => {
                 let id = request.params.id;
-                let accessScope = self.getAccessScope(null, rolesAllowed);
+                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
-                if (self.authentication && rolesAllowed) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
+                if (self.authentication && routeOptions.allowedRoles) {
+                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
                 switch (accessScope) {
@@ -251,21 +257,22 @@ class RouteGenerator {
             }
         };
 
-        return self.processRoles(model, rolesAllowed, routeOptions);
+        return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
     }
 
-    generateDelete (model, rolesAllowed) {
+    generateDelete (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
-        var routeOptions = {
+        var routeConfig = {
             method: 'DELETE',
             path: `${this.options.basePath}/${model.baseRoute}/{id}`,
             handler: (request, reply) => {
                 let id = request.params.id;
-                let accessScope = self.getAccessScope(null, rolesAllowed);
+                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
-                if (self.authentication && rolesAllowed) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
+                if (self.authentication && routeOptions.allowedRoles) {
+                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
                 switch (accessScope) {
@@ -282,20 +289,21 @@ class RouteGenerator {
             }
         };
 
-        return self.processRoles(model, rolesAllowed, routeOptions);
+        return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
     }
 
-    generateCount (model, rolesAllowed) {
+    generateCount (model, routeOptions) {
+        routeOptions = routeOptions || {};
         var self = this;
 
-        var routeOptions = {
+        var routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}/count`,
             handler: (request, reply) => {
-                let accessScope = self.getAccessScope(null, rolesAllowed);
+                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
 
-                if (self.authentication && rolesAllowed) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), rolesAllowed);
+                if (self.authentication && routeOptions.allowedRoles) {
+                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
                 switch (accessScope) {
@@ -312,7 +320,7 @@ class RouteGenerator {
             }
         };
 
-        return self.processRoles(model, rolesAllowed, routeOptions);
+        return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
     }
 }
 

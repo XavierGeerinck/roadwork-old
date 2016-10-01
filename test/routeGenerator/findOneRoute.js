@@ -68,7 +68,7 @@ describe('routeGenerator /findOne', () => {
         });
 
         it('should have authentication in the routeoptions if authentication is enabled', (done) => {
-            var options = routeGenerator.generateFindOne(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGenerator.generateFindOne(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config).to.exist();
             expect(options.config.auth).to.exist();
@@ -78,7 +78,7 @@ describe('routeGenerator /findOne', () => {
         });
 
         it('should not have authentication in the routeoptions if authentication is not enabled', (done) => {
-            var options = routeGeneratorWithoutAuthentication.generateFindOne(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGeneratorWithoutAuthentication.generateFindOne(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config).to.not.exist();
             //expect(options.config.auth).to.not.exist();
@@ -120,7 +120,7 @@ describe('routeGenerator /findOne', () => {
         };
 
         it('should return unauthorized when there are no roles passed', (done) => {
-            let options = routeGenerator.generateFindOne(mockModel, [ ]); // model, rolesAllowed
+            let options = routeGenerator.generateFindOne(mockModel, { allowedRoles: [ ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -129,7 +129,7 @@ describe('routeGenerator /findOne', () => {
         });
 
         it('should return unauthorized when we have NO_ACCESS', (done) => {
-            let options = routeGenerator.generateFindOne(mockModel, [ 'admin' ]); // model, rolesAllowed
+            let options = routeGenerator.generateFindOne(mockModel, { allowedRoles: [ 'admin' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -138,7 +138,7 @@ describe('routeGenerator /findOne', () => {
         });
 
         it('should call model.findOneByIdAndUserId when we have OWNER_ACCESS', (done) => {
-            let options = routeGenerator.generateFindOne(mockModel, [ '$owner' ]); // model, rolesAllowed
+            let options = routeGenerator.generateFindOne(mockModel, { allowedRoles: [ '$owner' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(`findOneByIdAndUserId_called_with_id_${request.params.id}_and_userId_${request.auth.credentials.get('id')}`);
@@ -147,7 +147,7 @@ describe('routeGenerator /findOne', () => {
         });
 
         it('should call model.findOne when we have ALL_ACCESS', (done) => {
-            let options = routeGenerator.generateFindOne(mockModel, [ 'user' ]); // model, rolesAllowed
+            let options = routeGenerator.generateFindOne(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal('findOne_called');
