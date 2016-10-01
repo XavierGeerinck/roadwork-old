@@ -89,7 +89,7 @@ describe('routeGenerator /findAllWithPagination', () => {
         });
 
         it('should have authentication in the routeoptions if authentication is enabled', (done) => {
-            var options = routeGenerator.generateFindAllWithPagination(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGenerator.generateFindAllWithPagination(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config).to.exist();
             expect(options.config.auth).to.exist();
@@ -99,7 +99,7 @@ describe('routeGenerator /findAllWithPagination', () => {
         });
 
         it('should not have authentication in the routeoptions if authentication is not enabled', (done) => {
-            var options = routeGeneratorWithoutAuthentication.generateFindAllWithPagination(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGeneratorWithoutAuthentication.generateFindAllWithPagination(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config.auth).to.not.exist();
 
@@ -143,7 +143,7 @@ describe('routeGenerator /findAllWithPagination', () => {
         };
 
         it('should return unauthorized when there are no roles passed', (done) => {
-            let options = routeGenerator.generateFindAllWithPagination(mockModel, [ ]); // model, rolesAllowed
+            let options = routeGenerator.generateFindAllWithPagination(mockModel, { allowedRoles: [ ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -152,7 +152,7 @@ describe('routeGenerator /findAllWithPagination', () => {
         });
 
         it('should return unauthorized when we have NO_ACCESS', (done) => {
-            let options = routeGenerator.generateFindAllWithPagination(mockModel, [ 'admin' ]); // model, rolesAllowed
+            let options = routeGenerator.generateFindAllWithPagination(mockModel, { allowedRoles: [ 'admin' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -161,7 +161,7 @@ describe('routeGenerator /findAllWithPagination', () => {
         });
 
         it('should call model.findAllWithPaginationByUserId when we have OWNER_ACCESS', (done) => {
-            let options = routeGenerator.generateFindAllWithPagination(mockModel, [ '$owner' ]); // model, rolesAllowed
+            let options = routeGenerator.generateFindAllWithPagination(mockModel, { allowedRoles: [ '$owner' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result.results).to.exist();
@@ -174,7 +174,7 @@ describe('routeGenerator /findAllWithPagination', () => {
         });
 
         it('should call model.findAllWithPagination when we have ALL_ACCESS', (done) => {
-            let options = routeGenerator.generateFindAllWithPagination(mockModel, [ 'user' ]); // model, rolesAllowed
+            let options = routeGenerator.generateFindAllWithPagination(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result.results).to.exist();

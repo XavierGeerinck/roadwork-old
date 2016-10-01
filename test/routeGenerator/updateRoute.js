@@ -68,7 +68,7 @@ describe('routeGenerator /update', () => {
         });
 
         it('should have authentication in the routeoptions if authentication is enabled', (done) => {
-            var options = routeGenerator.generateUpdate(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGenerator.generateUpdate(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config).to.exist();
             expect(options.config.auth).to.exist();
@@ -78,7 +78,7 @@ describe('routeGenerator /update', () => {
         });
 
         it('should not have authentication in the routeoptions if authentication is not enabled', (done) => {
-            var options = routeGeneratorWithoutAuthentication.generateUpdate(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGeneratorWithoutAuthentication.generateUpdate(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config).to.not.exist();
 
@@ -119,7 +119,7 @@ describe('routeGenerator /update', () => {
         };
 
         it('should return unauthorized when there are no roles passed', (done) => {
-            let options = routeGenerator.generateUpdate(mockModel, [ ]); // model, rolesAllowed
+            let options = routeGenerator.generateUpdate(mockModel, { allowedRoles: [ ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -128,7 +128,7 @@ describe('routeGenerator /update', () => {
         });
 
         it('should return unauthorized when we have NO_ACCESS', (done) => {
-            let options = routeGenerator.generateUpdate(mockModel, [ 'admin' ]); // model, rolesAllowed
+            let options = routeGenerator.generateUpdate(mockModel, { allowedRoles: [ 'admin' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -137,7 +137,7 @@ describe('routeGenerator /update', () => {
         });
 
         it('should call model.updateByIdAndUserId when we have OWNER_ACCESS', (done) => {
-            let options = routeGenerator.generateUpdate(mockModel, [ '$owner' ]); // model, rolesAllowed
+            let options = routeGenerator.generateUpdate(mockModel, { allowedRoles: [ '$owner' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(`updateByIdAndUserId_called_with_id_${request.params.id}_and_userId_${request.auth.credentials.get('id')}`);
@@ -146,7 +146,7 @@ describe('routeGenerator /update', () => {
         });
 
         it('should call model.update when we have ALL_ACCESS', (done) => {
-            let options = routeGenerator.generateUpdate(mockModel, [ 'user' ]); // model, rolesAllowed
+            let options = routeGenerator.generateUpdate(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal('update_called');

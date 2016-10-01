@@ -68,7 +68,7 @@ describe('routeGenerator /delete', () => {
         });
 
         it('should have authentication in the routeoptions if authentication is enabled', (done) => {
-            var options = routeGenerator.generateDelete(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGenerator.generateDelete(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config).to.exist();
             expect(options.config.auth).to.exist();
@@ -78,7 +78,7 @@ describe('routeGenerator /delete', () => {
         });
 
         it('should not have authentication in the routeoptions if authentication is not enabled', (done) => {
-            var options = routeGeneratorWithoutAuthentication.generateDelete(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGeneratorWithoutAuthentication.generateDelete(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             expect(options.config).to.not.exist();
             //expect(options.config.auth).to.not.exist();
@@ -120,7 +120,7 @@ describe('routeGenerator /delete', () => {
         };
 
         it('should return unauthorized when there are no roles passed', (done) => {
-            let options = routeGenerator.generateDelete(mockModel, [ ]); // model, rolesAllowed
+            let options = routeGenerator.generateDelete(mockModel, { allowedRoles: [ ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -129,7 +129,7 @@ describe('routeGenerator /delete', () => {
         });
 
         it('should return unauthorized when we have NO_ACCESS', (done) => {
-            let options = routeGenerator.generateDelete(mockModel, [ 'admin' ]); // model, rolesAllowed
+            let options = routeGenerator.generateDelete(mockModel, { allowedRoles: [ 'admin' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(Boom.unauthorized());
@@ -138,7 +138,7 @@ describe('routeGenerator /delete', () => {
         });
 
         it('should call model.deleteByIdAndUserId when we have OWNER_ACCESS', (done) => {
-            let options = routeGenerator.generateDelete(mockModel, [ '$owner' ]); // model, rolesAllowed
+            let options = routeGenerator.generateDelete(mockModel, { allowedRoles: [ '$owner' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal(`destroyByIdAndUserId_called_with_id_${request.params.id}_and_userId_${request.auth.credentials.get('id')}`);
@@ -147,7 +147,7 @@ describe('routeGenerator /delete', () => {
         });
 
         it('should call model.delete when we have ALL_ACCESS', (done) => {
-            let options = routeGenerator.generateDelete(mockModel, [ 'user' ]); // model, rolesAllowed
+            let options = routeGenerator.generateDelete(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
                 expect(result).to.equal('destroy_called');
