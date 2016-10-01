@@ -97,38 +97,38 @@ class Roadwork {
 
             console.info('creating REST routes for ' + model.tableName + ':');
             if (options.routes.findAll.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateFindAll(model, options.routes.findAll.allowedRoles));
-                console.info('--> created GET /' + model.baseRoute + ' for: ' + options.routes.findAll.allowedRoles);
+                this.adapter.registerRoute(this.routeGenerator.generateFindAll(model, options.routes.findAll));
+                console.info('--> created GET /' + model.baseRoute + ' for: ' + options.routes.findAll);
             }
 
             if (options.routes.findAllWithPagination.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateFindAllWithPagination(model, options.routes.findAllWithPagination.allowedRoles));
-                console.info('--> created GET /' + model.baseRoute + '/pagination/{offset}?limit={limit}' + ' for: ' + options.routes.findAllWithPagination.allowedRoles);
+                this.adapter.registerRoute(this.routeGenerator.generateFindAllWithPagination(model, options.routes.findAllWithPagination));
+                console.info('--> created GET /' + model.baseRoute + '/pagination/{offset}?limit={limit}' + ' for: ' + options.routes.findAllWithPagination);
             }
 
             if (options.routes.findOne.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateFindOne(model, options.routes.findOne.allowedRoles));
-                console.info('--> created GET /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.findOne.allowedRoles);
+                this.adapter.registerRoute(this.routeGenerator.generateFindOne(model, options.routes.findOne));
+                console.info('--> created GET /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.findOne);
             }
 
             if (options.routes.create.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateCreate(model, options.routes.create.allowedRoles));
-                console.info('--> created POST /' + model.baseRoute + ' for: ' + options.routes.create.allowedRoles);
+                this.adapter.registerRoute(this.routeGenerator.generateCreate(model, options.routes.create));
+                console.info('--> created POST /' + model.baseRoute + ' for: ' + options.routes.create);
             }
 
             if (options.routes.update.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateUpdate(model, options.routes.update.allowedRoles));
-                console.info('--> created PUT /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.update.allowedRoles);
+                this.adapter.registerRoute(this.routeGenerator.generateUpdate(model, options.routes.update));
+                console.info('--> created PUT /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.update);
             }
 
             if (options.routes.delete.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateDelete(model, options.routes.delete.allowedRoles));
-                console.info('--> created DELETE /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.delete.allowedRoles);
+                this.adapter.registerRoute(this.routeGenerator.generateDelete(model, options.routes.delete));
+                console.info('--> created DELETE /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.delete);
             }
 
             if (options.routes.count.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateCount(model, options.routes.count.allowedRoles));
-                console.info('--> created GET /' + model.baseRoute + '/count' + ' for: ' + options.routes.count.allowedRoles);
+                this.adapter.registerRoute(this.routeGenerator.generateCount(model, options.routes.count));
+                console.info('--> created GET /' + model.baseRoute + '/count' + ' for: ' + options.routes.count);
             }
         });
     };
