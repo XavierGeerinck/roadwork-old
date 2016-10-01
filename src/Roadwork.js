@@ -3,10 +3,11 @@ const Model = require('./Model');
 const RouteGenerator = require('./RouteGenerator');
 const HapiAdapter = require('./adapters/hapi');
 const generateOptionsSchema = require('./schemes/generateOptions');
+const rootOptionsSchema = require('./schemes/rootOptions');
 const dbConfigSchema = require('./schemes/dbConfig');
 
 class Roadwork {
-    constructor (server, bookshelf) {
+    constructor (server, bookshelf, options) {
         if (!server) {
             throw new Error('No http engine given!');
         }
@@ -15,6 +16,13 @@ class Roadwork {
             throw new Error('database connection not started');
         }
 
+        const result = Joi.validate(options, rootOptionsSchema, { convert: true });
+
+        if (result.error) {
+            throw result.error;
+        }
+
+        this.options = result.value; // Not validated options object!
         this.authentication = null; // The authentication plugin used
         this.server = server;
         this.models = [];
@@ -84,53 +92,53 @@ class Roadwork {
             throw new Error('Invalid Base Model Specified');
         }
 
-        Joi.validate(options, generateOptionsSchema, { convert: true }, (err, value) => {
-            // if (err) {
-            //     throw new Error(err);
-            // }
+        const result = Joi.validate(options, generateOptionsSchema, { convert: true });
 
-            options = value;
+        if (result.error) {
+            throw result.error;
+        }
 
-            var model = new Model(baseModel);
+        options = result.value;
 
-            this.models.push(model);
+        var model = new Model(baseModel);
 
-            console.info('creating REST routes for ' + model.tableName + ':');
-            if (options.routes.findAll.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateFindAll(model, options.routes.findAll.allowedRoles));
-                console.info('--> created GET /' + model.baseRoute + ' for: ' + options.routes.findAll.allowedRoles);
-            }
+        this.models.push(model);
 
-            if (options.routes.findAllWithPagination.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateFindAllWithPagination(model, options.routes.findAllWithPagination.allowedRoles));
-                console.info('--> created GET /' + model.baseRoute + '/pagination/{offset}?limit={limit}' + ' for: ' + options.routes.findAllWithPagination.allowedRoles);
-            }
+        console.info('creating REST routes for ' + model.tableName + ':');
+        if (options.routes.findAll.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateFindAll(model, options.routes.findAll.allowedRoles, this.options));
+            console.info('--> created GET /' + model.baseRoute + ' for: ' + options.routes.findAll.allowedRoles);
+        }
 
-            if (options.routes.findOne.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateFindOne(model, options.routes.findOne.allowedRoles));
-                console.info('--> created GET /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.findOne.allowedRoles);
-            }
+        if (options.routes.findAllWithPagination.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateFindAllWithPagination(model, options.routes.findAllWithPagination.allowedRoles, this.options));
+            console.info('--> created GET /' + model.baseRoute + '/pagination/{offset}?limit={limit}' + ' for: ' + options.routes.findAllWithPagination.allowedRoles);
+        }
 
-            if (options.routes.create.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateCreate(model, options.routes.create.allowedRoles));
-                console.info('--> created POST /' + model.baseRoute + ' for: ' + options.routes.create.allowedRoles);
-            }
+        if (options.routes.findOne.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateFindOne(model, options.routes.findOne.allowedRoles, this.options));
+            console.info('--> created GET /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.findOne.allowedRoles);
+        }
 
-            if (options.routes.update.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateUpdate(model, options.routes.update.allowedRoles));
-                console.info('--> created PUT /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.update.allowedRoles);
-            }
+        if (options.routes.create.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateCreate(model, options.routes.create.allowedRoles, this.options));
+            console.info('--> created POST /' + model.baseRoute + ' for: ' + options.routes.create.allowedRoles);
+        }
 
-            if (options.routes.delete.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateDelete(model, options.routes.delete.allowedRoles));
-                console.info('--> created DELETE /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.delete.allowedRoles);
-            }
+        if (options.routes.update.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateUpdate(model, options.routes.update.allowedRoles, this.options));
+            console.info('--> created PUT /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.update.allowedRoles);
+        }
 
-            if (options.routes.count.isEnabled) {
-                this.adapter.registerRoute(this.routeGenerator.generateCount(model, options.routes.count.allowedRoles));
-                console.info('--> created GET /' + model.baseRoute + '/count' + ' for: ' + options.routes.count.allowedRoles);
-            }
-        });
+        if (options.routes.delete.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateDelete(model, options.routes.delete.allowedRoles, this.options));
+            console.info('--> created DELETE /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.delete.allowedRoles);
+        }
+
+        if (options.routes.count.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateCount(model, options.routes.count.allowedRoles, this.options));
+            console.info('--> created GET /' + model.baseRoute + '/count' + ' for: ' + options.routes.count.allowedRoles);
+        }
     };
 }
 

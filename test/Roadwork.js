@@ -81,7 +81,25 @@ describe('Module', () => {
         try {
             roadwork.generate(User, { something: 'wrong' });
         } catch (err) {
-            expect(err.message).to.equal('ValidationError: "something" is not allowed');
+            expect(err).to.exist();
+            expect(err.name).to.equal('ValidationError');
+            expect(err.details[0].message).to.equal('"something" is not allowed');
+        }
+
+        done();
+    });
+
+
+
+    it('should return an error if the options passed has an incorrect format', (done) => {
+        try {
+            const test = new Roadwork(server, bookshelfHelper.engine, {
+                incorrect: "something wrong"
+            });
+        } catch (err) {
+            expect(err).to.exist();
+            expect(err.name).to.equal('ValidationError');
+            expect(err.details[0].message).to.equal('"incorrect" is not allowed');
         }
 
         done();

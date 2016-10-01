@@ -75,10 +75,19 @@ describe('routeGenerator /create', () => {
         });
 
         it('should not have authentication in the routeoptions if authentication is not enabled', (done) => {
-            var options = routeGeneratorWithoutAuthentication.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGeneratorWithoutAuthentication.generateCreate(mockModel, [ 'user' ]); // model, rolesAllowed
 
             expect(options.config).to.not.exist();
-            //expect(options.config.auth).to.not.exist();
+
+            done();
+        });
+
+        it('should change the basePath if we configured it', (done) => {
+            const basePath = '/newPath';
+            const routeGeneratorNew = new RouteGenerator(hapiAdapter, null, { basePath: basePath });
+            const result = routeGeneratorNew.generateCreate(mockModel, null);
+
+            expect(result.path).to.equal(`${basePath}${defaultRoute}`);
 
             done();
         });
