@@ -31,33 +31,33 @@ class RouteGenerator {
      * @param routeOptions.allowedRoles the roles that are allowed to a certain route
      * @param model
      */
-    getAccessScope (userScope, routeOptions) {
+    getAccessScope (userScope, allowedRoles) {
         // if no user scope and rolesAllowed has been passed, then we return ALL_ACCESS
-        if (!userScope && !routeOptions.allowedRoles) {
+        if (!userScope && !allowedRoles) {
             return accessScopesEnum.ALL_ACCESS;
         }
 
         // If no rolesAllowed is specified, we allow everyone!
-        if (!Array.isArray(routeOptions.allowedRoles) && !routeOptions.allowedRoles) {
+        if (!Array.isArray(allowedRoles) && !allowedRoles) {
             return accessScopesEnum.ALL_ACCESS;
         }
 
         if (Array.isArray(userScope)) {
             for (var scope of userScope) {
-                if (scope != '$owner' && routeOptions.allowedRoles.indexOf(scope) > -1) {
+                if (scope != '$owner' && allowedRoles.indexOf(scope) > -1) {
                     return accessScopesEnum.ALL_ACCESS;
                 }
             }
 
-            if (routeOptions.allowedRoles.indexOf('$owner') > -1) {
+            if (allowedRoles.indexOf('$owner') > -1) {
                 return accessScopesEnum.OWNER_ACCESS;
             }
         } else {
-            if (routeOptions.allowedRoles.indexOf(userScope) > -1) {
+            if (allowedRoles.indexOf(userScope) > -1) {
                 return accessScopesEnum.ALL_ACCESS;
             }
 
-            if (routeOptions.allowedRoles.indexOf('$owner') > -1) {
+            if (allowedRoles.indexOf('$owner') > -1) {
                 return accessScopesEnum.OWNER_ACCESS;
             }
         }
