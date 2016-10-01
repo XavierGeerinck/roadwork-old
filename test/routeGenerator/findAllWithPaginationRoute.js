@@ -89,7 +89,7 @@ describe('routeGenerator /findAllWithPagination', () => {
         });
 
         it('should have authentication in the routeoptions if authentication is enabled', (done) => {
-            var options = routeGenerator.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGenerator.generateFindAllWithPagination(mockModel, [ 'user' ]); // model, rolesAllowed
 
             expect(options.config).to.exist();
             expect(options.config.auth).to.exist();
@@ -99,10 +99,19 @@ describe('routeGenerator /findAllWithPagination', () => {
         });
 
         it('should not have authentication in the routeoptions if authentication is not enabled', (done) => {
-            var options = routeGeneratorWithoutAuthentication.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGeneratorWithoutAuthentication.generateFindAllWithPagination(mockModel, [ 'user' ]); // model, rolesAllowed
 
-            expect(options.config).to.not.exist();
-            //expect(options.config.auth).to.not.exist();
+            expect(options.config.auth).to.not.exist();
+
+            done();
+        });
+
+        it('should change the basePath if we configured it', (done) => {
+            const basePath = '/newPath';
+            const routeGeneratorNew = new RouteGenerator(hapiAdapter, null, { basePath: basePath });
+            const result = routeGeneratorNew.generateFindAllWithPagination(mockModel, null);
+
+            expect(result.path).to.equal(`${basePath}${defaultRoute}`);
 
             done();
         });

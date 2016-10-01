@@ -39,8 +39,8 @@ describe('routeGenerator /update', () => {
         server = require('../helpers/server-hapi').init();
         roadworkAuthentication = new RoadworkAuthentication(server, {});
         hapiAdapter = new HapiAdapter(server);
-        routeGenerator = new RouteGenerator(hapiAdapter, roadworkAuthentication);
-        routeGeneratorWithoutAuthentication = new RouteGenerator(hapiAdapter, null);
+        routeGenerator = new RouteGenerator(hapiAdapter, roadworkAuthentication, { basePath: '' });
+        routeGeneratorWithoutAuthentication = new RouteGenerator(hapiAdapter, null, { basePath: '' });
 
         done();
     });
@@ -68,7 +68,7 @@ describe('routeGenerator /update', () => {
         });
 
         it('should have authentication in the routeoptions if authentication is enabled', (done) => {
-            var options = routeGenerator.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGenerator.generateUpdate(mockModel, [ 'user' ]); // model, rolesAllowed
 
             expect(options.config).to.exist();
             expect(options.config.auth).to.exist();
@@ -78,10 +78,19 @@ describe('routeGenerator /update', () => {
         });
 
         it('should not have authentication in the routeoptions if authentication is not enabled', (done) => {
-            var options = routeGeneratorWithoutAuthentication.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
+            var options = routeGeneratorWithoutAuthentication.generateUpdate(mockModel, [ 'user' ]); // model, rolesAllowed
 
             expect(options.config).to.not.exist();
-            //expect(options.config.auth).to.not.exist();
+
+            done();
+        });
+
+        it('should change the basePath if we configured it', (done) => {
+            const basePath = '/newPath';
+            const routeGeneratorNew = new RouteGenerator(hapiAdapter, null, { basePath: basePath });
+            const result = routeGeneratorNew.generateUpdate(mockModel, null);
+
+            expect(result.path).to.equal(`${basePath}${defaultRoute}`);
 
             done();
         });

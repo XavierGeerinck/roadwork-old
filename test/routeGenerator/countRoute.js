@@ -67,6 +67,16 @@ describe('routeGenerator /count', () => {
             done();
         });
 
+        it('should change the basePath if we configured it', (done) => {
+            const basePath = '/newPath';
+            const routeGeneratorNew = new RouteGenerator(hapiAdapter, null, { basePath: basePath });
+            const result = routeGeneratorNew.generateCount(mockModel, null);
+
+            expect(result.path).to.equal(`${basePath}${defaultRoute}`);
+
+            done();
+        });
+
         it('should have authentication in the routeoptions if authentication is enabled', (done) => {
             var options = routeGenerator.generateCount(mockModel, [ 'user' ]); // model, rolesAllowed
 
