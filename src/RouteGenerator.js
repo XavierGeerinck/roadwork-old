@@ -36,6 +36,7 @@ class RouteGenerator {
         let temp = JSON.parse(JSON.stringify(queryParams)); // Clone the request.query object since we will make modifications
         delete temp.access_token; // Do not allow the access token in here
         delete temp.token;
+        delete temp.limit; // Limit is system specified
 
         return temp;
     }
@@ -122,7 +123,7 @@ class RouteGenerator {
                     return reply(results);
                 })
                 .catch((err) => {
-                    console.error(`[ERR: ${err.code}]: ${err.message}`);
+                    //console.error(`[ERR: ${err.code}]: ${err.message}`);
                     return reply(err);
                 })
             }
@@ -156,31 +157,52 @@ class RouteGenerator {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
-                let results;
+                let queryParams = self.processQueryParams(request.query);
+                let promise = null;
 
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        model.findAllWithPagination(offset, limit)
-                        .then((results) => {
-                            reply({
-                                results: results.toJSON(),
-                                pagination: results.pagination
+                        promise = new Promise((resolve, reject) => {
+                            model.findAllWithPagination(offset, limit, queryParams)
+                            .then((results) => {
+                                resolve({
+                                    results: results.toJSON(),
+                                    pagination: results.pagination
+                                });
+                            })
+                            .catch((err) => {
+                                return reject(err);
                             });
                         });
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        model.findAllByUserIdWithPagination(request.auth.credentials.get('id'), offset, limit)
-                        .then((results) => {
-                            reply({
-                                results: results.toJSON(),
-                                pagination: results.pagination
+                        promise = new Promise((resolve, reject) => {
+                            model.findAllByUserIdWithPagination(request.auth.credentials.get('id'), offset, limit, queryParams)
+                            .then((results) => {
+                                resolve({
+                                    results: results.toJSON(),
+                                    pagination: results.pagination
+                                });
+                            })
+                            .catch((err) => {
+                                return reject(err);
                             });
                         });
                         break;
                     case accessScopesEnum.NO_ACCESS:
                     default:
-                        reply(Boom.unauthorized());
+                        promise = Promise.resolve(Boom.unauthorized());
                 }
+
+                // Handle the reply
+                promise
+                .then((result) => {
+                    return reply(result);
+                })
+                .catch((err) => {
+                    //console.error(`[ERR: ${err.code}]: ${err.message}`);
+                    return reply(err);
+                })
             }
         };
 
@@ -335,17 +357,51 @@ class RouteGenerator {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
+                let queryParams = self.processQueryParams(request.query);
+                let promise = null;
+
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        reply(model.count());
+                        promise = new Promise((resolve, reject) => {
+                            model.count(queryParams)
+                            .then((count) => {
+                                return resolve({
+                                    count: count
+                                })
+                            })
+                            .catch((err) => {
+                                return reject(err);
+                            });
+                        });
+                        promise = model.count(queryParams);
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        reply(model.countByUserId(request.auth.credentials.get('id')));
+                        promise = new Promise((resolve, reject) => {
+                            model.countByUserId(request.auth.credentials.get('id'), queryParams)
+                            .then((count) => {
+                                return resolve({
+                                    count: count
+                                })
+                            })
+                            .catch((err) => {
+                                return reject(err);
+                            });
+                        });
                         break;
                     case accessScopesEnum.NO_ACCESS:
                     default:
-                        reply(Boom.unauthorized());
+                        promise = Promise.resolve(Boom.unauthorized());
                 }
+
+                // Handle the reply
+                promise
+                .then((result) => {
+                    return reply(result);
+                })
+                .catch((err) => {
+                    //console.error(`[ERR: ${err.code}]: ${err.message}`);
+                    return reply(err);
+                })
             }
         };
 

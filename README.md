@@ -72,15 +72,20 @@ Example:
 
 # Generated Routes
 
-| route | description |
-| ----- | ----------- |
-| `GET /<model>` | Gets all the objects for the specific model, if the _$owner_ role has been added to rolesAllowed, then only the objects where the user has access to will be returned |
-| `GET /<model>/{id}` | Gets the specified object for the given model, if the _$owner_ role has been added to rolesAllowed, then only if the user has access this object will be returned |
-| `GET /<model>/pagination/{offset}?limit={limit}` | Gets all the objects for the specific model starting at a specific id offset and a certain limit, if the _$owner_ route has been added, only the objects where the user has access to will be returned. For an example response, see the responses below.|
-| `POST /<model>` | Creates a specific item for the given model |
-| `PUT /<model>/{id}` | Updates a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can update his/her own object |
-| `DELETE /<model>/{id}` | Deletes a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can delete his/her own object |
-| `GET /<model>/count` | Gets the number of items for the specific model, if the _$owner_ object has been specified, only the amount of items where the owner has access to will be returned |
+* Supports filtering will show YES for the routes that accept column name filtering in their URL query, see the filters heading for more information
+
+| route | description | Supports Filtering? |
+| ----- | ----------- | ------------------- |
+| `GET /<model>` | Gets all the objects for the specific model, if the _$owner_ role has been added to rolesAllowed, then only the objects where the user has access to will be returned | YES |
+| `GET /<model>/{id}` | Gets the specified object for the given model, if the _$owner_ role has been added to rolesAllowed, then only if the user has access this object will be returned | NO |
+| `GET /<model>/pagination/{offset}?limit={limit}` | Gets all the objects for the specific model starting at a specific id offset and a certain limit, if the _$owner_ route has been added, only the objects where the user has access to will be returned. For an example response, see the responses below.| YES |
+| `POST /<model>` | Creates a specific item for the given model | NO |
+| `PUT /<model>/{id}` | Updates a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can update his/her own object | NO |
+| `DELETE /<model>/{id}` | Deletes a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can delete his/her own object | NO |
+| `GET /<model>/count` | Gets the number of items for the specific model, if the _$owner_ object has been specified, only the amount of items where the owner has access to will be returned | YES |
+
+# Filters
+TODO
 
 # Example Responses
 ## Pagination
