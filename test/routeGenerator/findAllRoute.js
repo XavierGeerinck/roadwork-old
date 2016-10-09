@@ -26,10 +26,10 @@ describe('routeGenerator /findAll', () => {
     const mockModel = {
         baseRoute: 'mocks',
         findAll: function (payload) {
-            return 'findAll_called';
+            return Promise.resolve('findAll_called');
         },
         findAllByUserId: function (authCredentialsId) {
-            return `findAllByUserId_called_with_${authCredentialsId}`;
+            return Promise.resolve(`findAllByUserId_called_with_${authCredentialsId}`);
         }
     };
 
@@ -120,6 +120,7 @@ describe('routeGenerator /findAll', () => {
             let options = routeGenerator.generateFindAll(mockModel, { allowedRoles: [ ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
+                console.log(result);
                 expect(result).to.equal(Boom.unauthorized());
                 done();
             });

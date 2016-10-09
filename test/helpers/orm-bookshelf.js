@@ -1,11 +1,11 @@
 // In-memory db, if ever needed install sqlite3 as a dep!
-// var knex = require('knex')({
-//     client: 'sqlite3',
-//     connection: ':memory:'
-// });
-
 var knex = require('knex')({
+    client: 'sqlite3',
+    connection: ':memory:'
 });
+
+// var knex = require('knex')({
+// });
 
 var bookshelf = require('bookshelf')(knex);
 

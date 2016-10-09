@@ -17,13 +17,33 @@ class Model {
         return pluralize.singular(this.baseRoute);
     }
 
-    findAllByUserId (userId) {
-        let where = (this.tableName === 'user') ? { 'id': userId } : { 'user_id': userId };
-        return this.baseModel.where(where).fetchAll();
+    findAllByUserId (userId, filter) {
+        filter = filter || {};
+
+        return this.baseModel.forge().query((qb) => {
+            // User table check
+            if (this.tableName === 'user') {
+                qb.where('id', userId);
+            } else {
+                qb.where('user_id', userId);
+            }
+
+            if (filter) {
+                qb.where(filter);
+            }
+        })
+        .fetchAll()
     }
 
-    findAll () {
-        return this.baseModel.fetchAll();
+    findAll (filter) {
+        filter = filter || {};
+
+        return this.baseModel.forge().query((qb) => {
+            if (filter) {
+                qb.where(filter);
+            }
+        })
+        .fetchAll()
     }
 
     findAllWithPagination (offset, limit) {

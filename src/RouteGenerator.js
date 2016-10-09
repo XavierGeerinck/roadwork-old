@@ -25,6 +25,22 @@ class RouteGenerator {
     }
 
     /**
+     * Remove unneeded keys from the queryParams
+     * @param queryParams
+     */
+    processQueryParams (queryParams) {
+        if (!queryParams) {
+            return {};
+        }
+
+        let temp = JSON.parse(JSON.stringify(queryParams)); // Clone the request.query object since we will make modifications
+        delete temp.access_token; // Do not allow the access token in here
+        delete temp.token;
+
+        return temp;
+    }
+
+    /**
      * Gets the amount of access we have for a certain route, this gets divided into 3 levels:
      * - ALL_ACCESS: We have a custom access that matches our scope in the user table, return all the objects!
      * - OWNER_ACCESS: We have $owner access, so we need to return all the objects that we own
@@ -81,20 +97,34 @@ class RouteGenerator {
                     accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
                 }
 
+                let queryParams = self.processQueryParams(request.query);
+                let promise = null;
+
+                // Process the access scope
                 switch (accessScope) {
                     case accessScopesEnum.ALL_ACCESS:
-                        reply(model.findAll());
+                        promise = model.findAll(queryParams);
                         break;
                     case accessScopesEnum.OWNER_ACCESS:
-                        reply(model.findAllByUserId(request.auth.credentials.get('id')));
+                        promise = model.findAllByUserId(request.auth.credentials.get('id'), queryParams);
                         break;
                     case accessScopesEnum.NO_ACCESS:
-                        reply(Boom.unauthorized());
+                        promise = Promise.resolve(Boom.unauthorized());
                         break;
                     // The default is that we have the ALL_ACCESS scope
                     default:
-                        reply(model.findAll());
+                        promise = model.findAll();
                 }
+
+                // Handle the reply
+                promise
+                .then((results) => {
+                    return reply(results);
+                })
+                .catch((err) => {
+                    console.error(`[ERR: ${err.code}]: ${err.message}`);
+                    return reply(err);
+                })
             }
         };
 
