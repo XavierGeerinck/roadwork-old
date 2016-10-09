@@ -87,16 +87,16 @@ describe('Model', () => {
     describe('findAllByUserId', () => {
         it('should call baseModel.where(\'id\', userId) if the table is the userTable', (done) => {
             userModel.findAllByUserId(666)
-            .then((result) => {
-                expect(result).to.equal('fetchAll_called_with_{"id":666}');
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" where "id" = 666 - SQLITE_ERROR: no such table: users');
                 done();
             });
         });
 
         it('should call baseModel.where(\'user_id\', userId) if the table is NOT the userTable', (done) => {
             userSessionModel.findAllByUserId(666)
-            .then((result) => {
-                expect(result).to.equal('fetchAll_called_with_{"user_id":666}');
+            .catch((err) => {
+                expect(err.message).to.equal('select "user_sessions".* from "user_sessions" where "user_id" = 666 - SQLITE_ERROR: no such table: user_sessions');
                 done();
             });
         });
@@ -104,14 +104,9 @@ describe('Model', () => {
 
     describe('findAll', () => {
         it('should call baseModel.where(\'id\', userId) if the table is the userTable', (done) => {
-            let fetchAllStub = sinon.stub(userModel.baseModel, 'fetchAll', () => {
-                return Promise.resolve('fetchAll_called');
-            });
-
             userModel.findAll()
-            .then((result) => {
-                expect(result).to.equal('fetchAll_called');
-                fetchAllStub.restore();
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" - SQLITE_ERROR: no such table: users');
                 done();
             });
         });
