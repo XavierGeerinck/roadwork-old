@@ -25,11 +25,19 @@ describe('routeGenerator /count', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
-        count: function (payload) {
-            return 'count_called';
+        count: function (filter) {
+            if (filter && filter.error) {
+                return Promise.reject(`count_called_with_catch_${JSON.stringify(filter)}`);
+            }
+
+            return Promise.resolve(`count_called_with_${JSON.stringify(filter)}`);
         },
-        countByUserId: function (authCredentialsId) {
-            return `countByUserId_called_with_${authCredentialsId}`;
+        countByUserId: function (authCredentialsId, filter) {
+            if (filter && filter.error) {
+                return Promise.reject(`countByUserId_called_with_catch_${JSON.stringify(filter)}`);
+            }
+
+            return Promise.resolve(`countByUserId_called_with_${authCredentialsId}_and_${JSON.stringify(filter)}`);
         }
     };
 
@@ -138,7 +146,7 @@ describe('routeGenerator /count', () => {
             let options = routeGenerator.generateCount(mockModel, { allowedRoles: [ '$owner' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal(`countByUserId_called_with_${request.auth.credentials.get('id')}`);
+                expect(result.count).to.equal(`countByUserId_called_with_${request.auth.credentials.get('id')}_and_{}`);
                 done();
             });
         });
@@ -147,7 +155,7 @@ describe('routeGenerator /count', () => {
             let options = routeGenerator.generateCount(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('count_called');
+                expect(result).to.equal('count_called_with_{}');
                 done();
             });
         });
@@ -156,7 +164,7 @@ describe('routeGenerator /count', () => {
             let options = routeGenerator.generateCount(mockModel, null); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('count_called');
+                expect(result).to.equal('count_called_with_{}');
                 done();
             });
         });
@@ -165,7 +173,61 @@ describe('routeGenerator /count', () => {
             let options = routeGeneratorWithoutAuthentication.generateCount(mockModel, null); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('count_called');
+                expect(result).to.equal('count_called_with_{}');
+                done();
+            });
+        });
+
+        it('should call the catch in the promise resolver if something happened (no auth)', (done) => {
+            let options = routeGeneratorWithoutAuthentication.generateCount(mockModel, null); // model, rolesAllowed
+
+            let requestNew = JSON.parse(JSON.stringify(request));
+            requestNew.query = {};
+            requestNew.query.error = '123';
+
+            options.handler(requestNew, (result) => {
+                expect(result).to.equal('count_called_with_catch_{"error":"123"}');
+                done();
+            });
+        });
+
+        it('should call the catch in the promise resolver if something happened (with auth)', (done) => {
+            let options = routeGenerator.generateCount(mockModel, { allowedRoles: [ '$owner' ] }); // model, rolesAllowed
+
+            let requestNew = JSON.parse(JSON.stringify(request));
+            requestNew.query = {};
+            requestNew.query.error = '123';
+            requestNew.auth = {
+                credentials: {
+                    get: (key) => {
+                        switch (key) {
+                            case 'id':
+                                return 25;
+                                break;
+                            case 'scope':
+                                return [ '$owner' ];
+                            default:
+                                return `not_defined_key:_${key}`;
+                        }
+                    }
+                }
+            };
+
+            options.handler(requestNew, (result) => {
+                expect(result).to.equal('countByUserId_called_with_catch_{"error":"123"}');
+                done();
+            });
+        });
+
+        it('should apply the filter correctly', (done) => {
+            let options = routeGeneratorWithoutAuthentication.generateCount(mockModel, null); // model, rolesAllowed
+
+            let requestNew = JSON.parse(JSON.stringify(request));
+            requestNew.query = {};
+            requestNew.query.test = '123';
+
+            options.handler(requestNew, (result) => {
+                expect(result).to.equal('count_called_with_{"test":"123"}');
                 done();
             });
         });

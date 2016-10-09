@@ -25,11 +25,19 @@ describe('routeGenerator /findAll', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
-        findAll: function (payload) {
-            return Promise.resolve('findAll_called');
+        findAll: function (filter) {
+            if (filter && filter.error) {
+                return Promise.reject(`findAll_called_with_catch_${JSON.stringify(filter)}`);
+            }
+
+            return Promise.resolve(`findAll_called_with_${JSON.stringify(filter)}`);
         },
-        findAllByUserId: function (authCredentialsId) {
-            return Promise.resolve(`findAllByUserId_called_with_${authCredentialsId}`);
+        findAllByUserId: function (authCredentialsId, filter) {
+            if (filter && filter.error) {
+                return Promise.reject(`findAll_called_with_catch_${JSON.stringify(filter)}`);
+            }
+
+            return Promise.resolve(`findAllByUserId_called_with_${authCredentialsId}_and_${JSON.stringify(filter)}`);
         }
     };
 
@@ -120,7 +128,6 @@ describe('routeGenerator /findAll', () => {
             let options = routeGenerator.generateFindAll(mockModel, { allowedRoles: [ ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                console.log(result);
                 expect(result).to.equal(Boom.unauthorized());
                 done();
             });
@@ -139,7 +146,7 @@ describe('routeGenerator /findAll', () => {
             let options = routeGenerator.generateFindAll(mockModel, { allowedRoles: [ '$owner' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal(`findAllByUserId_called_with_${request.auth.credentials.get('id')}`);
+                expect(result).to.equal(`findAllByUserId_called_with_${request.auth.credentials.get('id')}_and_{}`);
                 done();
             });
         });
@@ -152,7 +159,7 @@ describe('routeGenerator /findAll', () => {
             let options = routeGenerator.generateFindAll(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('findAll_called');
+                expect(result).to.equal('findAll_called_with_undefined');
                 stub.restore();
                 done();
             });
@@ -166,7 +173,7 @@ describe('routeGenerator /findAll', () => {
             let options = routeGenerator.generateFindAll(mockModel); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('findAll_called');
+                expect(result).to.equal('findAll_called_with_undefined');
                 stub.restore();
                 done();
             });
@@ -176,7 +183,7 @@ describe('routeGenerator /findAll', () => {
             let options = routeGenerator.generateFindAll(mockModel, null); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('findAll_called');
+                expect(result).to.equal('findAll_called_with_{}');
                 done();
             });
         });
@@ -185,7 +192,33 @@ describe('routeGenerator /findAll', () => {
             let options = routeGeneratorWithoutAuthentication.generateFindAll(mockModel, null); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('findAll_called');
+                expect(result).to.equal('findAll_called_with_{}');
+                done();
+            });
+        });
+
+        it('should call the catch in the promise resolver if something happened', (done) => {
+            let options = routeGeneratorWithoutAuthentication.generateFindAll(mockModel, null); // model, rolesAllowed
+
+            let requestNew = JSON.parse(JSON.stringify(request));
+            requestNew.query = {};
+            requestNew.query.error = '123';
+
+            options.handler(requestNew, (result) => {
+                expect(result).to.equal('findAll_called_with_catch_{"error":"123"}');
+                done();
+            });
+        });
+
+        it('should apply the filter correctly', (done) => {
+            let options = routeGeneratorWithoutAuthentication.generateFindAll(mockModel, null); // model, rolesAllowed
+
+            let requestNew = JSON.parse(JSON.stringify(request));
+            requestNew.query = {};
+            requestNew.query.test = '123';
+
+            options.handler(requestNew, (result) => {
+                expect(result).to.equal('findAll_called_with_{"test":"123"}');
                 done();
             });
         });

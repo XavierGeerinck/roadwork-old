@@ -18,7 +18,7 @@ class Model {
     }
 
     findAllByUserId (userId, filter) {
-        filter = filter || {};
+        filter = filter || undefined;
 
         return this.baseModel.forge().query((qb) => {
             // User table check
@@ -36,7 +36,7 @@ class Model {
     }
 
     findAll (filter) {
-        filter = filter || {};
+        filter = filter || undefined;
 
         return this.baseModel.forge().query((qb) => {
             if (filter) {
@@ -46,13 +46,33 @@ class Model {
         .fetchAll()
     }
 
-    findAllWithPagination (offset, limit) {
-        return this.baseModel.fetchPage({ offset: offset, limit: limit });
+    findAllWithPagination (offset, limit, filter) {
+        filter = filter || {};
+
+        return this.baseModel.forge().query((qb) => {
+            if (filter) {
+                qb.where(filter);
+            }
+        })
+        .fetchPage({ offset: offset, limit: limit });
     }
 
-    findAllByUserIdWithPagination (userId, offset, limit) {
-        let where = (this.tableName === 'user') ? { 'id': userId } : { 'user_id': userId };
-        return this.baseModel.where(where).fetchPage({ offset: offset, limit: limit });
+    findAllByUserIdWithPagination (userId, offset, limit, filter) {
+        filter = filter || {};
+
+        return this.baseModel.forge().query((qb) => {
+            // User table check
+            if (this.tableName === 'user') {
+                qb.where('id', userId);
+            } else {
+                qb.where('user_id', userId);
+            }
+
+            if (filter) {
+                qb.where(filter);
+            }
+        })
+        .fetchPage({ offset: offset, limit: limit });
     }
 
     findOneById (id) {
@@ -123,13 +143,33 @@ class Model {
         }
     }
 
-    count () {
-        return this.baseModel.count().then(function (count) { return Promise.resolve({ count: count })});
+    count (filter) {
+        filter = filter || {};
+
+        return this.baseModel.forge().query((qb) => {
+            if (filter) {
+                qb.where(filter);
+            }
+        })
+        .count();
     }
 
-    countByUserId (userId) {
-        let where = (this.tableName === 'user') ? { 'id': userId } : { 'user_id': userId };
-        return this.baseModel.where(where).count().then(function (count) { return Promise.resolve({ count: count })});
+    countByUserId (userId, filter) {
+        filter = filter || {};
+
+        return this.baseModel.forge().query((qb) => {
+            // User table check
+            if (this.tableName === 'user') {
+                qb.where('id', userId);
+            } else {
+                qb.where('user_id', userId);
+            }
+
+            if (filter) {
+                qb.where(filter);
+            }
+        })
+        .count();
     }
 }
 

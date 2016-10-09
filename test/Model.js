@@ -93,6 +93,14 @@ describe('Model', () => {
             });
         });
 
+        it('should call baseModel.where(\'id\', userId) if the table is the userTable (with filter)', (done) => {
+            userModel.findAllByUserId(666, { test: 1 })
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" where "id" = 666 and "test" = 1 - SQLITE_ERROR: no such table: users');
+                done();
+            });
+        });
+
         it('should call baseModel.where(\'user_id\', userId) if the table is NOT the userTable', (done) => {
             userSessionModel.findAllByUserId(666)
             .catch((err) => {
@@ -110,19 +118,29 @@ describe('Model', () => {
                 done();
             });
         });
+
+        it('should call baseModel.where(\'id\', userId) if the table is the userTable', (done) => {
+            userModel.findAll({ test: 1 })
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" where "test" = 1 - SQLITE_ERROR: no such table: users');
+                done();
+            });
+        });
     });
 
     describe('findAllWithPagination', () => {
         it('should call fetchPage', (done) => {
-            let stub = sinon.stub(userModel.baseModel, 'fetchPage', (obj) => {
-                return Promise.resolve(`fetchPage_called_with_{"offset":${obj.offset},"limit":${obj.limit}}`);
-            });
-
             userModel.findAllWithPagination(10, 999)
-            .then((result) => {
-                expect(result).to.equal('fetchPage_called_with_{"offset":10,"limit":999}');
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" limit 999 offset 10 - SQLITE_ERROR: no such table: users');
+                done();
+            });
+        });
 
-                stub.restore();
+        it('should call fetchPage (with filter)', (done) => {
+            userModel.findAllWithPagination(10, 999, { test: 1 })
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" where "test" = 1 limit 999 offset 10 - SQLITE_ERROR: no such table: users');
                 done();
             });
         });
@@ -131,16 +149,24 @@ describe('Model', () => {
     describe('findAllByUserIdWithPagination', () => {
         it('should call where(id: id) since it\'s the user table and fetchPage', (done) => {
             userModel.findAllByUserIdWithPagination(666, 10, 999)
-            .then((result) => {
-                expect(result).to.equal('fetchPage_called_with_{"id":666}');
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" where "id" = 666 limit 999 offset 10 - SQLITE_ERROR: no such table: users');
+                done();
+            });
+        });
+
+        it('should call where(id: id) since it\'s the user table and fetchPage (with filter)', (done) => {
+            userModel.findAllByUserIdWithPagination(666, 10, 999, { test: 1 })
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" where "id" = 666 and "test" = 1 limit 999 offset 10 - SQLITE_ERROR: no such table: users');
                 done();
             });
         });
 
         it('should call where(id: id) since it\'s the user table and fetchPage', (done) => {
             userSessionModel.findAllByUserIdWithPagination(666, 10, 999)
-            .then((result) => {
-                expect(result).to.equal('fetchPage_called_with_{"user_id":666}');
+            .catch((err) => {
+                expect(err.message).to.equal('select "user_sessions".* from "user_sessions" where "user_id" = 666 limit 999 offset 10 - SQLITE_ERROR: no such table: user_sessions');
                 done();
             });
         });
@@ -267,33 +293,41 @@ describe('Model', () => {
         });
 
         it('should return the count as an object { count: \<count\> } for count', (done) => {
-            const stub = sinon.stub(userModel.baseModel, 'count', function () {
-                return Promise.resolve(5);
-            });
-
             userModel.count()
-            .then(function (result) {
-                stub.restore();
-                expect(result).to.be.an.object();
-                expect(result.count).to.equal(5);
+            .catch((err) => {
+                expect(err.message).to.equal('select count(*) as "count" from "users" - SQLITE_ERROR: no such table: users');
+                done();
+            });
+        });
+
+        it('should return the count as an object { count: \<count\> } for count (with filter)', (done) => {
+            userModel.count({ test: 1 })
+            .catch((err) => {
+                expect(err.message).to.equal('select count(*) as "count" from "users" where "test" = 1 - SQLITE_ERROR: no such table: users');
                 done();
             });
         });
 
         it('should return the count as an object { count: \<count\> } where(user_id = userId) if it\s not the user table for countByUserId', (done) => {
             userSessionModel.countByUserId(666)
-            .then(function (result) {
-                expect(result.count).to.equal('count_called_with_{"user_id":666}');
-
+            .catch((err) => {
+                expect(err.message).to.equal('select count(*) as "count" from "user_sessions" where "user_id" = 666 - SQLITE_ERROR: no such table: user_sessions');
                 done();
             });
         });
 
         it('should return the count as an object { count: \<count\> } where(id = userId) if it\s the user table for countByUserId', (done) => {
             userModel.countByUserId(666)
-            .then(function (result) {
-                expect(result.count).to.equal('count_called_with_{"id":666}');
+            .catch((err) => {
+                expect(err.message).to.equal('select count(*) as "count" from "users" where "id" = 666 - SQLITE_ERROR: no such table: users');
+                done();
+            });
+        });
 
+        it('should return the count as an object { count: \<count\> } where(user_id = userId) if it\s not the user table for countByUserId (with filter)', (done) => {
+            userSessionModel.countByUserId(666, { test: 1 })
+            .catch((err) => {
+                expect(err.message).to.equal('select count(*) as "count" from "user_sessions" where "user_id" = 666 and "test" = 1 - SQLITE_ERROR: no such table: user_sessions');
                 done();
             });
         });

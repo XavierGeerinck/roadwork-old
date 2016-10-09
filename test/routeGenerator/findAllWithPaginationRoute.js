@@ -32,21 +32,29 @@ describe('routeGenerator /findAllWithPagination', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
-        findAllWithPagination: function (payload) {
+        findAllWithPagination: function (offset, limit, filter) {
+            if (filter && filter.error) {
+                return Promise.reject(`findAllWithPagination_called_with_catch_${JSON.stringify(filter)}`);
+            }
+
             return Promise.resolve({
                 toJSON: function () {
                     return [
-                        `findAllWithPagination_called`
+                        `findAllWithPagination_called_with_${JSON.stringify(filter)}`
                     ];
                 },
                 pagination: pagination
             });
         },
-        findAllByUserIdWithPagination: function (authCredentialsId) {
+        findAllByUserIdWithPagination: function (authCredentialsId, offset, limit, filter) {
+            if (filter && filter.error) {
+                return Promise.reject(`findAllWithPaginationByUserId_called_with_catch_${JSON.stringify(filter)}`);
+            }
+
             return Promise.resolve({
                 toJSON: function () {
                     return [
-                        `findAllWithPaginationByUserId_called_with_${authCredentialsId}`
+                        `findAllWithPaginationByUserId_called_with_${authCredentialsId}_and_${JSON.stringify(filter)}`
                     ];
                 },
                 pagination: pagination
@@ -167,7 +175,7 @@ describe('routeGenerator /findAllWithPagination', () => {
                 expect(result.results).to.exist();
                 expect(result.pagination).to.exist();
                 expect(result.results).to.be.an.array();
-                expect(result.results[0]).to.equal(`findAllWithPaginationByUserId_called_with_${request.auth.credentials.get('id')}`);
+                expect(result.results[0]).to.equal(`findAllWithPaginationByUserId_called_with_${request.auth.credentials.get('id')}_and_{}`);
                 expect(result.pagination).to.equal(pagination);
                 done();
             });
@@ -180,7 +188,7 @@ describe('routeGenerator /findAllWithPagination', () => {
                 expect(result.results).to.exist();
                 expect(result.pagination).to.exist();
                 expect(result.results).to.be.an.array();
-                expect(result.results[0]).to.equal('findAllWithPagination_called');
+                expect(result.results[0]).to.equal('findAllWithPagination_called_with_{}');
                 expect(result.pagination).to.equal(pagination);
                 done();
             });
@@ -193,7 +201,7 @@ describe('routeGenerator /findAllWithPagination', () => {
                 expect(result.results).to.exist();
                 expect(result.pagination).to.exist();
                 expect(result.results).to.be.an.array();
-                expect(result.results[0]).to.equal('findAllWithPagination_called');
+                expect(result.results[0]).to.equal('findAllWithPagination_called_with_{}');
                 expect(result.pagination).to.equal(pagination);
                 done();
             });
@@ -206,8 +214,59 @@ describe('routeGenerator /findAllWithPagination', () => {
                 expect(result.results).to.exist();
                 expect(result.pagination).to.exist();
                 expect(result.results).to.be.an.array();
-                expect(result.results[0]).to.equal('findAllWithPagination_called');
+                expect(result.results[0]).to.equal('findAllWithPagination_called_with_{}');
                 expect(result.pagination).to.equal(pagination);
+                done();
+            });
+        });
+
+        it('should call the catch in the promise resolver if something happened (no auth)', (done) => {
+            let options = routeGeneratorWithoutAuthentication.generateFindAllWithPagination(mockModel, null); // model, rolesAllowed
+
+            let requestNew = JSON.parse(JSON.stringify(request));
+            requestNew.query.error = '123';
+
+            options.handler(requestNew, (result) => {
+                expect(result).to.equal('findAllWithPagination_called_with_catch_{"error":"123"}');
+                done();
+            });
+        });
+
+        it('should call the catch in the promise resolver if something happened (with auth)', (done) => {
+            let options = routeGenerator.generateFindAllWithPagination(mockModel, { allowedRoles: [ '$owner' ] }); // model, rolesAllowed
+
+            let requestNew = JSON.parse(JSON.stringify(request));
+            requestNew.query.error = '123';
+            requestNew.auth = {
+                credentials: {
+                    get: (key) => {
+                        switch (key) {
+                            case 'id':
+                                return 25;
+                                break;
+                            case 'scope':
+                                return [ '$owner' ];
+                            default:
+                                return `not_defined_key:_${key}`;
+                        }
+                    }
+                }
+            };
+
+            options.handler(requestNew, (result) => {
+                expect(result).to.equal('findAllWithPaginationByUserId_called_with_catch_{"error":"123"}');
+                done();
+            });
+        });
+
+        it('should apply the filter correctly', (done) => {
+            let options = routeGeneratorWithoutAuthentication.generateFindAllWithPagination(mockModel, null); // model, rolesAllowed
+
+            let requestNew = JSON.parse(JSON.stringify(request));
+            requestNew.query.test = '123';
+
+            options.handler(requestNew, (result) => {
+                expect(result.results[0]).to.equal('findAllWithPagination_called_with_{"test":"123"}');
                 done();
             });
         });
