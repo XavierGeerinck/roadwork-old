@@ -91,42 +91,7 @@ class RouteGenerator {
         let routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}`,
-            handler: (request, reply) => {
-                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
-
-                if (self.authentication && routeOptions.allowedRoles) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
-                }
-
-                let queryParams = self.processQueryParams(request.query);
-                let promise = null;
-
-                // Process the access scope
-                switch (accessScope) {
-                    case accessScopesEnum.ALL_ACCESS:
-                        promise = model.findAll(queryParams);
-                        break;
-                    case accessScopesEnum.OWNER_ACCESS:
-                        promise = model.findAllByUserId(request.auth.credentials.get('id'), queryParams);
-                        break;
-                    case accessScopesEnum.NO_ACCESS:
-                        promise = Promise.resolve(Boom.unauthorized());
-                        break;
-                    // The default is that we have the ALL_ACCESS scope
-                    default:
-                        promise = model.findAll();
-                }
-
-                // Handle the reply
-                promise
-                .then((results) => {
-                    return reply(results);
-                })
-                .catch((err) => {
-                    //console.error(`[ERR: ${err.code}]: ${err.message}`);
-                    return reply(err);
-                })
-            }
+            handler: require('./handlers/findAll')(self, model, routeOptions)
         };
 
         return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
@@ -147,63 +112,7 @@ class RouteGenerator {
                     }
                 }
             },
-            handler: (request, reply) => {
-                let limit = request.query.limit;
-                let offset = request.params.offset;
-
-                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
-
-                if (self.authentication && routeOptions.allowedRoles) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
-                }
-
-                let queryParams = self.processQueryParams(request.query);
-                let promise = null;
-
-                switch (accessScope) {
-                    case accessScopesEnum.ALL_ACCESS:
-                        promise = new Promise((resolve, reject) => {
-                            model.findAllWithPagination(offset, limit, queryParams)
-                            .then((results) => {
-                                resolve({
-                                    results: results.toJSON(),
-                                    pagination: results.pagination
-                                });
-                            })
-                            .catch((err) => {
-                                return reject(err);
-                            });
-                        });
-                        break;
-                    case accessScopesEnum.OWNER_ACCESS:
-                        promise = new Promise((resolve, reject) => {
-                            model.findAllByUserIdWithPagination(request.auth.credentials.get('id'), offset, limit, queryParams)
-                            .then((results) => {
-                                resolve({
-                                    results: results.toJSON(),
-                                    pagination: results.pagination
-                                });
-                            })
-                            .catch((err) => {
-                                return reject(err);
-                            });
-                        });
-                        break;
-                    case accessScopesEnum.NO_ACCESS:
-                    default:
-                        promise = Promise.resolve(Boom.unauthorized());
-                }
-
-                // Handle the reply
-                promise
-                .then((result) => {
-                    return reply(result);
-                })
-                .catch((err) => {
-                    //console.error(`[ERR: ${err.code}]: ${err.message}`);
-                    return reply(err);
-                })
-            }
+            handler: require('./handlers/findAllWithPagination')(self, model, routeOptions)
         };
 
         return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
@@ -216,35 +125,7 @@ class RouteGenerator {
         let routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}/{id}`,
-            handler: (request, reply) => {
-                let id = request.params.id;
-
-                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
-
-                if (self.authentication && routeOptions.allowedRoles) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
-                }
-
-                switch (accessScope) {
-                    case accessScopesEnum.ALL_ACCESS:
-                        reply(model.findOneById(id));
-                        break;
-                    case accessScopesEnum.OWNER_ACCESS:
-                        reply(model.findOneByIdAndUserId(id, request.auth.credentials.get('id')));
-                        // self.authentication.hasAccessToRow(request, rolesAllowed, model)
-                        // .then((hasAccess) => {
-                        //     if (hasAccess) {
-                        //         return reply(model.findOneById(id));
-                        //     }
-                        //
-                        //     return reply(Boom.unauthorized());
-                        // });
-                        break;
-                    case accessScopesEnum.NO_ACCESS:
-                    default:
-                        reply(Boom.unauthorized());
-                }
-            }
+            handler: require('./handlers/findOne')(self, model, routeOptions)
         };
 
         return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
@@ -257,23 +138,7 @@ class RouteGenerator {
         let routeConfig = {
             method: 'POST',
             path: `${this.options.basePath}/${model.baseRoute}`,
-            handler: (request, reply) => {
-                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
-
-                if (self.authentication && routeOptions.allowedRoles) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
-                }
-
-                switch (accessScope) {
-                    case accessScopesEnum.ALL_ACCESS:
-                    case accessScopesEnum.OWNER_ACCESS:
-                        reply(model.createObject(request.payload));
-                        break;
-                    case accessScopesEnum.NO_ACCESS:
-                    default:
-                        reply(Boom.unauthorized());
-                }
-            }
+            handler: require('./handlers/create')(self, model, routeOptions)
         };
 
         return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
@@ -286,26 +151,7 @@ class RouteGenerator {
         let routeConfig = {
             method: 'PUT',
             path: `${this.options.basePath}/${model.baseRoute}/{id}`,
-            handler: (request, reply) => {
-                let id = request.params.id;
-                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
-
-                if (self.authentication && routeOptions.allowedRoles) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
-                }
-
-                switch (accessScope) {
-                    case accessScopesEnum.ALL_ACCESS:
-                        reply(model.updateById(id, request.payload));
-                        break;
-                    case accessScopesEnum.OWNER_ACCESS:
-                        reply(model.updateByIdAndUserId(id, request.auth.credentials.get('id')));
-                        break;
-                    case accessScopesEnum.NO_ACCESS:
-                    default:
-                        reply(Boom.unauthorized());
-                }
-            }
+            handler: require('./handlers/update')(self, model, routeOptions)
         };
 
         return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
@@ -318,26 +164,7 @@ class RouteGenerator {
         let routeConfig = {
             method: 'DELETE',
             path: `${this.options.basePath}/${model.baseRoute}/{id}`,
-            handler: (request, reply) => {
-                let id = request.params.id;
-                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
-
-                if (self.authentication && routeOptions.allowedRoles) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
-                }
-
-                switch (accessScope) {
-                    case accessScopesEnum.ALL_ACCESS:
-                        reply(model.destroyById(id));
-                        break;
-                    case accessScopesEnum.OWNER_ACCESS:
-                        reply(model.destroyByIdAndUserId(id, request.auth.credentials.get('id')));
-                        break;
-                    case accessScopesEnum.NO_ACCESS:
-                    default:
-                        reply(Boom.unauthorized());
-                }
-            }
+            handler: require('./handlers/delete')(self, model, routeOptions)
         };
 
         return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
@@ -350,59 +177,7 @@ class RouteGenerator {
         let routeConfig = {
             method: 'GET',
             path: `${this.options.basePath}/${model.baseRoute}/count`,
-            handler: (request, reply) => {
-                let accessScope = self.getAccessScope(null, routeOptions.allowedRoles);
-
-                if (self.authentication && routeOptions.allowedRoles) {
-                    accessScope = self.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
-                }
-
-                let queryParams = self.processQueryParams(request.query);
-                let promise = null;
-
-                switch (accessScope) {
-                    case accessScopesEnum.ALL_ACCESS:
-                        promise = new Promise((resolve, reject) => {
-                            model.count(queryParams)
-                            .then((count) => {
-                                return resolve({
-                                    count: count
-                                })
-                            })
-                            .catch((err) => {
-                                return reject(err);
-                            });
-                        });
-                        promise = model.count(queryParams);
-                        break;
-                    case accessScopesEnum.OWNER_ACCESS:
-                        promise = new Promise((resolve, reject) => {
-                            model.countByUserId(request.auth.credentials.get('id'), queryParams)
-                            .then((count) => {
-                                return resolve({
-                                    count: count
-                                })
-                            })
-                            .catch((err) => {
-                                return reject(err);
-                            });
-                        });
-                        break;
-                    case accessScopesEnum.NO_ACCESS:
-                    default:
-                        promise = Promise.resolve(Boom.unauthorized());
-                }
-
-                // Handle the reply
-                promise
-                .then((result) => {
-                    return reply(result);
-                })
-                .catch((err) => {
-                    //console.error(`[ERR: ${err.code}]: ${err.message}`);
-                    return reply(err);
-                })
-            }
+            handler: require('./handlers/count')(self, model, routeOptions)
         };
 
         return self.processRoles(model, routeOptions.allowedRoles, routeConfig);
