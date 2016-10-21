@@ -89,8 +89,6 @@ describe('Module', () => {
         done();
     });
 
-
-
     it('should return an error if the options passed has an incorrect format', (done) => {
         try {
             const test = new Roadwork(server, bookshelfHelper.engine, {

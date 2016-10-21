@@ -87,57 +87,57 @@ class Roadwork {
      * @param baseModel
      * @param options
      */
-    generate (baseModel, options) {
+    generate (baseModel, routeOptions) {
         if (!baseModel) {
             throw new Error('Invalid Base Model Specified');
         }
 
-        const result = Joi.validate(options, generateOptionsSchema, { convert: true });
+        const result = Joi.validate(routeOptions, generateOptionsSchema, { convert: true });
 
         if (result.error) {
             throw result.error;
         }
 
-        options = result.value;
+        routeOptions = result.value;
 
-        var model = new Model(baseModel);
+        var model = new Model(baseModel, this.options);
 
         this.models.push(model);
 
         console.info('creating REST routes for ' + model.tableName + ':');
-        if (options.routes.findAll.isEnabled) {
-            this.adapter.registerRoute(this.routeGenerator.generateFindAll(model, options.routes.findAll));
-            console.info('--> created GET /' + model.baseRoute + ' for: ' + options.routes.findAll);
+        if (routeOptions.routes.findAll.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateFindAll(model, routeOptions.routes.findAll));
+            console.info('--> created GET ' + model.baseRoute + ' for: ' + routeOptions.routes.findAll);
         }
 
-        if (options.routes.findAllWithPagination.isEnabled) {
-            this.adapter.registerRoute(this.routeGenerator.generateFindAllWithPagination(model, options.routes.findAllWithPagination));
-            console.info('--> created GET /' + model.baseRoute + '/pagination/{offset}?limit={limit}' + ' for: ' + options.routes.findAllWithPagination);
+        if (routeOptions.routes.findAllWithPagination.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateFindAllWithPagination(model, routeOptions.routes.findAllWithPagination));
+            console.info('--> created GET ' + model.getFullRoute() + '/pagination/{offset}?limit={limit}' + ' for: ' + routeOptions.routes.findAllWithPagination);
         }
 
-        if (options.routes.findOne.isEnabled) {
-            this.adapter.registerRoute(this.routeGenerator.generateFindOne(model, options.routes.findOne));
-            console.info('--> created GET /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.findOne);
+        if (routeOptions.routes.findOne.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateFindOne(model, routeOptions.routes.findOne));
+            console.info('--> created GET ' + model.getFullRoute() + '/{id}' + ' for: ' + routeOptions.routes.findOne);
         }
 
-        if (options.routes.create.isEnabled) {
-            this.adapter.registerRoute(this.routeGenerator.generateCreate(model, options.routes.create));
-            console.info('--> created POST /' + model.baseRoute + ' for: ' + options.routes.create);
+        if (routeOptions.routes.create.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateCreate(model, routeOptions.routes.create));
+            console.info('--> created POST ' + model.getFullRoute() + ' for: ' + routeOptions.routes.create);
         }
 
-        if (options.routes.update.isEnabled) {
-            this.adapter.registerRoute(this.routeGenerator.generateUpdate(model, options.routes.update));
-            console.info('--> created PUT /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.update);
+        if (routeOptions.routes.update.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateUpdate(model, routeOptions.routes.update));
+            console.info('--> created PUT ' + model.getFullRoute() + '/{id}' + ' for: ' + routeOptions.routes.update);
         }
 
-        if (options.routes.delete.isEnabled) {
-            this.adapter.registerRoute(this.routeGenerator.generateDelete(model, options.routes.delete));
-            console.info('--> created DELETE /' + model.baseRoute + '/{id}' + ' for: ' + options.routes.delete);
+        if (routeOptions.routes.delete.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateDelete(model, routeOptions.routes.delete));
+            console.info('--> created DELETE ' + model.getFullRoute() + '/{id}' + ' for: ' + routeOptions.routes.delete);
         }
 
-        if (options.routes.count.isEnabled) {
-            this.adapter.registerRoute(this.routeGenerator.generateCount(model, options.routes.count));
-            console.info('--> created GET /' + model.baseRoute + '/count' + ' for: ' + options.routes.count);
+        if (routeOptions.routes.count.isEnabled) {
+            this.adapter.registerRoute(this.routeGenerator.generateCount(model, routeOptions.routes.count));
+            console.info('--> created GET ' + model.getFullRoute() + '/count' + ' for: ' + routeOptions.routes.count);
         }
     };
 }
