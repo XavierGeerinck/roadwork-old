@@ -2,6 +2,7 @@
 * Create CRUD routes for the passed models
 * Add `Bearer` authentication to the individual routes
 * Turn of the generation of specified routes
+* Specify the api creation basePath
 
 # Usage
 ## Prerequisites
@@ -69,6 +70,20 @@ Example:
     }
 }
 ```
+
+## Options
+### basePath
+By supplying the basePath option, you can specify where the API will be published to.
+
+Example: 
+```javascript
+// Create API routes
+let api = new Roadwork(server, db, {
+    basePath: '/api'
+});
+```
+
+will expose every API route on http(s)://<yourhost>/api
 
 # Generated Routes
 

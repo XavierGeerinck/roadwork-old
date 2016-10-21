@@ -8,13 +8,26 @@ const Boom = require('boom');
  * @constructor
  */
 class Model {
-    constructor (baseModel) {
+    constructor (baseModel, options) {
         this.baseModel = baseModel;
         this.baseRoute = pluralize(baseModel.forge().tableName);
+        this.basePath = (options && options.basePath) ? options.basePath : "";
     }
 
     get tableName () {
         return pluralize.singular(this.baseRoute);
+    }
+
+    getBasePath() {
+        return this.basePath;
+    }
+
+    setBasePath (basePath) {
+        this.basePath = basePath;
+    }
+
+    getFullRoute () {
+        return `${this.basePath}/${this.baseRoute}`;
     }
 
     findAllByUserId (userId, filter) {

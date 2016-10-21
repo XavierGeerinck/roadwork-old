@@ -18,6 +18,7 @@ const ORM = require('./helpers/orm-bookshelf');
 const User = ORM.Models.User;
 const UserSession = ORM.Models.UserSession;
 const Model = require(process.cwd() + '/src/Model.js');
+const Roadwork = require('..');
 
 describe('Model', () => {
     let server, userModel, userSessionModel, whereStub, whereStub2;
@@ -82,6 +83,27 @@ describe('Model', () => {
         whereStub2.restore();
 
         done();
+    });
+
+    describe('General', () => {
+        it('should change the basePath if there is a custom one provided', (done) => {
+            let model = new Model(User);
+            model.setBasePath('/testApi');
+
+            expect(model.getBasePath()).to.equal('/testApi');
+            expect(model.getFullRoute()).to.equal('/testApi/users');
+            done();
+        });
+
+        it('should change the basePath if it is provided as option to a roadwork instance', (done) => {
+            let roadwork2 = new Roadwork(server, ORM.engine, { basePath: '/test' });
+            roadwork2.generate(User);
+
+            expect(roadwork2.options.basePath).to.equal('/test');
+            expect(roadwork2.models[0].getFullRoute()).to.equal('/test/users');
+
+            done();
+        });
     });
 
     describe('findAllByUserId', () => {
