@@ -3,6 +3,7 @@
 * Add `Bearer` authentication to the individual routes
 * Turn of the generation of specified routes
 * Specify the api creation basePath
+* Fetch relations through a simple ?with=<relation> key that can get nested relations
 
 # Usage
 ## Prerequisites
@@ -14,8 +15,9 @@ This plugin requires you to have `Bookshelf.js` installed and configured. The re
 
 Database is a database connection object as described here: http://knexjs.org/#Installation-client
 
-## Authentication
-### Enable
+## Features
+### Authentication
+#### Enable
 To enable authentication, the only thing you need to do is call the `Api.addAuthentication(authenticationLibrary)` object. This will automatically create the user and user_session tables if they do not exist yet.
 
 Once this is done, the addAuthentication will return a promise stating that it is done, whereafter you can generate the routings with their detailed permissions such as these routes:
@@ -54,7 +56,7 @@ api.addAuthentication(require('roadwork-authentication'))
 });
 ```
 
-### Configure route access
+#### Configure route access
 As soon as the authentication has been enabled, you will be able to fine tune access towards a single route. This can be done by specifying the `allowedRoles` in the configuration object (see `API generate(model, options)`).
 
 This will also create a new **dynamic** role called *$owner* which will allow access to the requested resource only if the currently authenticated user owns it. This is usefull in cases such as updating the user\'s own model, ... 
@@ -70,6 +72,29 @@ Example:
     }
 }
 ```
+
+### Relations
+Roadwork allows you to fetch models with the relations. 
+
+Example: let's say that you have a User model with a one-to-many relation to UserSession, and you want to fetch that user and the session that it has. Then you can simply append `?with=sessions` in the URL to fetch these relations.
+
+The Model for this would look like this:
+
+```javascript
+var Bookshelf = require('../');
+var UserSession = require('./UserSession');
+
+var User = Bookshelf.Model.extend({
+    tableName: 'user',
+    sessions: function () {
+        return this.hasMany('UserSession');
+    }
+});
+
+module.exports = Bookshelf.model('User', User);
+```
+
+To specify more than one relation, you can just use a "," between the relations to fetch different relations. Example: `?with=sessions,books,books.authors`
 
 ## Options
 ### basePath
@@ -89,15 +114,15 @@ will expose every API route on http(s)://<yourhost>/api
 
 * Supports filtering will show YES for the routes that accept column name filtering in their URL query, see the filters heading for more information
 
-| route | description | Supports Filtering? |
-| ----- | ----------- | ------------------- |
-| `GET /<model>` | Gets all the objects for the specific model, if the _$owner_ role has been added to rolesAllowed, then only the objects where the user has access to will be returned | YES |
-| `GET /<model>/{id}` | Gets the specified object for the given model, if the _$owner_ role has been added to rolesAllowed, then only if the user has access this object will be returned | NO |
-| `GET /<model>/pagination/{offset}?limit={limit}` | Gets all the objects for the specific model starting at a specific id offset and a certain limit, if the _$owner_ route has been added, only the objects where the user has access to will be returned. For an example response, see the responses below.| YES |
-| `POST /<model>` | Creates a specific item for the given model | NO |
-| `PUT /<model>/{id}` | Updates a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can update his/her own object | NO |
-| `DELETE /<model>/{id}` | Deletes a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can delete his/her own object | NO |
-| `GET /<model>/count` | Gets the number of items for the specific model, if the _$owner_ object has been specified, only the amount of items where the owner has access to will be returned | YES |
+| route | description | Supports Filtering? | Supports Relations? |
+| ----- | ----------- | ------------------- | ------------------- |
+| `GET /<model>` | Gets all the objects for the specific model, if the _$owner_ role has been added to rolesAllowed, then only the objects where the user has access to will be returned | YES | YES |
+| `GET /<model>/{id}` | Gets the specified object for the given model, if the _$owner_ role has been added to rolesAllowed, then only if the user has access this object will be returned | NO | YES |
+| `GET /<model>/pagination/{offset}?limit={limit}` | Gets all the objects for the specific model starting at a specific id offset and a certain limit, if the _$owner_ route has been added, only the objects where the user has access to will be returned. For an example response, see the responses below.| YES | YES |
+| `POST /<model>` | Creates a specific item for the given model | NO | NO |
+| `PUT /<model>/{id}` | Updates a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can update his/her own object | NO | NO |
+| `DELETE /<model>/{id}` | Deletes a specific item for the given model and id, if the _$owner_ role has been specified, only the owner can delete his/her own object | NO | NO |
+| `GET /<model>/count` | Gets the number of items for the specific model, if the _$owner_ object has been specified, only the amount of items where the owner has access to will be returned | YES | NO |
 
 # Filters
 TODO

@@ -150,7 +150,7 @@ describe('routeGenerator /findAll', () => {
             let options = routeGenerator.generateFindAll(mockModel, { allowedRoles: [ 'user' ] }); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('findAll_called_with_undefined');
+                expect(result).to.equal('findAll_called_with_{}');
                 stub.restore();
                 done();
             });
@@ -164,7 +164,7 @@ describe('routeGenerator /findAll', () => {
             let options = routeGenerator.generateFindAll(mockModel); // model, rolesAllowed
 
             options.handler(request, (result) => {
-                expect(result).to.equal('findAll_called_with_undefined');
+                expect(result).to.equal('findAll_called_with_{}');
                 stub.restore();
                 done();
             });

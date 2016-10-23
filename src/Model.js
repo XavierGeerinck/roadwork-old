@@ -30,8 +30,11 @@ class Model {
         return `${this.basePath}/${this.baseRoute}`;
     }
 
-    findAllByUserId (userId, filter) {
+    findAllByUserId (userId, filter, withRelated) {
         filter = filter || undefined;
+
+        let fetchOptions = {};
+        fetchOptions.withRelated = (withRelated) ? [ withRelated ] : undefined;
 
         return this.baseModel.forge().query((qb) => {
             // User table check
@@ -45,33 +48,46 @@ class Model {
                 qb.where(filter);
             }
         })
-        .fetchAll()
+        .fetchAll(fetchOptions)
     }
 
-    findAll (filter) {
+    findAll (filter, withRelated) {
         filter = filter || undefined;
 
-        return this.baseModel.forge().query((qb) => {
-            if (filter) {
-                qb.where(filter);
-            }
-        })
-        .fetchAll()
-    }
-
-    findAllWithPagination (offset, limit, filter) {
-        filter = filter || {};
+        let fetchOptions = {};
+        fetchOptions.withRelated = (withRelated) ? [ withRelated ] : undefined;
 
         return this.baseModel.forge().query((qb) => {
             if (filter) {
                 qb.where(filter);
             }
         })
-        .fetchPage({ offset: offset, limit: limit });
+        .fetchAll(fetchOptions)
     }
 
-    findAllByUserIdWithPagination (userId, offset, limit, filter) {
+    findAllWithPagination (offset, limit, filter, withRelated) {
         filter = filter || {};
+
+        let fetchOptions = {};
+        fetchOptions.withRelated = (withRelated) ? [ withRelated ] : undefined;
+        fetchOptions.offset = offset;
+        fetchOptions.limit = limit;
+
+        return this.baseModel.forge().query((qb) => {
+            if (filter) {
+                qb.where(filter);
+            }
+        })
+        .fetchPage(fetchOptions);
+    }
+
+    findAllByUserIdWithPagination (userId, offset, limit, filter, withRelated) {
+        filter = filter || {};
+
+        let fetchOptions = {};
+        fetchOptions.withRelated = (withRelated) ? [ withRelated ] : undefined;
+        fetchOptions.offset = offset;
+        fetchOptions.limit = limit;
 
         return this.baseModel.forge().query((qb) => {
             // User table check
@@ -85,16 +101,22 @@ class Model {
                 qb.where(filter);
             }
         })
-        .fetchPage({ offset: offset, limit: limit });
+        .fetchPage(fetchOptions);
     }
 
-    findOneById (id) {
-        return this.baseModel.where({ 'id': id }).fetch();
+    findOneById (id, withRelated) {
+        let fetchOptions = {};
+        fetchOptions.withRelated = (withRelated) ? [ withRelated ] : undefined;
+
+        return this.baseModel.where({ 'id': id }).fetch(fetchOptions);
     }
 
-    findOneByIdAndUserId (id, userId) {
+    findOneByIdAndUserId (id, userId, withRelated) {
+        let fetchOptions = {};
+        fetchOptions.withRelated = (withRelated) ? [ withRelated ] : undefined;
+
         let where = (this.tableName === 'user') ? { 'id': userId } : { 'id': id, 'user_id': userId };
-        return this.baseModel.where(where).fetch();
+        return this.baseModel.where(where).fetch(fetchOptions);
     }
 
     createObject (data) {
