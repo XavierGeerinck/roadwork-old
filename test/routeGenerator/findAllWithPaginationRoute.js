@@ -32,6 +32,7 @@ describe('routeGenerator /findAllWithPagination', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
+        getFullRoute: () => { return '/mocks'; },
         findAllWithPagination: function (offset, limit, filter) {
             if (filter && filter.error) {
                 return Promise.reject(`findAllWithPagination_called_with_catch_${JSON.stringify(filter)}`);

@@ -102,6 +102,12 @@ describe('Model', () => {
             expect(roadwork2.options.basePath).to.equal('/test');
             expect(roadwork2.models[0].getFullRoute()).to.equal('/test/users');
 
+            const tableNamePlural = pluralize(User.forge().tableName);
+            const route = `/test/${tableNamePlural}`;
+            const routes = roadwork2.getServer().table()[0].table;
+
+            expect(routes).to.include({ method: 'get', path: route });
+
             done();
         });
     });

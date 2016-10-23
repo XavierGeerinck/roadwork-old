@@ -90,7 +90,7 @@ class RouteGenerator {
         let self = this;
         let routeConfig = {
             method: 'GET',
-            path: `${this.options.basePath}/${model.baseRoute}`,
+            path: model.getFullRoute(),
             handler: require('./handlers/findAll')(self, model, routeOptions)
         };
 

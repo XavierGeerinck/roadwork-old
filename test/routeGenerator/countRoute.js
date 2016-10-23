@@ -25,6 +25,7 @@ describe('routeGenerator /count', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
+        getFullRoute: () => { return '/mocks'; },
         count: function (filter) {
             if (filter && filter.error) {
                 return Promise.reject(`count_called_with_catch_${JSON.stringify(filter)}`);

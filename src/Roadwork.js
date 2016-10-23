@@ -107,7 +107,7 @@ class Roadwork {
         console.info('creating REST routes for ' + model.tableName + ':');
         if (routeOptions.routes.findAll.isEnabled) {
             this.adapter.registerRoute(this.routeGenerator.generateFindAll(model, routeOptions.routes.findAll));
-            console.info('--> created GET ' + model.baseRoute + ' for: ' + routeOptions.routes.findAll);
+            console.info('--> created GET ' + model.getFullRoute() + ' for: ' + routeOptions.routes.findAll);
         }
 
         if (routeOptions.routes.findAllWithPagination.isEnabled) {

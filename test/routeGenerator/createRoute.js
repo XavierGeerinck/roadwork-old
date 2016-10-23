@@ -25,6 +25,7 @@ describe('routeGenerator /create', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
+        getFullRoute: () => { return '/mocks'; },
         createObject: function (payload) {
             return 'create_called';
         }

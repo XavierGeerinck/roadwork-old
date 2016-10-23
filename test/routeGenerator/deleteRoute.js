@@ -25,6 +25,7 @@ describe('routeGenerator /delete', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
+        getFullRoute: () => { return '/mocks'; },
         destroyById: function (payload) {
             return 'destroy_called';
         },

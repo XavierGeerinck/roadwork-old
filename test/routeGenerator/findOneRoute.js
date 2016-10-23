@@ -25,6 +25,7 @@ describe('routeGenerator /findOne', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
+        getFullRoute: () => { return '/mocks'; },
         findOneById: function (payload) {
             return 'findOne_called';
         },

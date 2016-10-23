@@ -25,6 +25,7 @@ describe('routeGenerator /findAll', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
+        getFullRoute: () => { return '/mocks'; },
         findAll: function (filter) {
             if (filter && filter.error) {
                 return Promise.reject(`findAll_called_with_catch_${JSON.stringify(filter)}`);
@@ -90,16 +91,6 @@ describe('routeGenerator /findAll', () => {
 
             expect(options.config).to.not.exist();
             //expect(options.config.auth).to.not.exist();
-
-            done();
-        });
-
-        it('should change the basePath if we configured it', (done) => {
-            const basePath = '/newPath';
-            const routeGeneratorNew = new RouteGenerator(hapiAdapter, null, { basePath: basePath });
-            const result = routeGeneratorNew.generateFindAll(mockModel, null);
-
-            expect(result.path).to.equal(`${basePath}${defaultRoute}`);
 
             done();
         });

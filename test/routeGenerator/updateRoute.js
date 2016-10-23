@@ -25,6 +25,7 @@ describe('routeGenerator /update', () => {
 
     const mockModel = {
         baseRoute: 'mocks',
+        getFullRoute: () => { return '/mocks'; },
         updateById: function (payload) {
             return 'update_called';
         },
