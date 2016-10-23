@@ -136,6 +136,14 @@ describe('Model', () => {
                 done();
             });
         });
+
+        it('should use withRelated if the with parameter is defined', (done) => {
+            userSessionModel.findAllByUserId(666, null, 'sessions')
+            .catch((err) => {
+                expect(err.message).to.equal('select "user_sessions".* from "user_sessions" where "user_id" = 666 - SQLITE_ERROR: no such table: user_sessions');
+                done();
+            });
+        });
     });
 
     describe('findAll', () => {
@@ -154,6 +162,14 @@ describe('Model', () => {
                 done();
             });
         });
+
+        it('should use withRelated if the with parameter is defined', (done) => {
+            userModel.findAll({}, 'sessions')
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" - SQLITE_ERROR: no such table: users');
+                done();
+            });
+        });
     });
 
     describe('findAllWithPagination', () => {
@@ -169,6 +185,14 @@ describe('Model', () => {
             userModel.findAllWithPagination(10, 999, { test: 1 })
             .catch((err) => {
                 expect(err.message).to.equal('select "users".* from "users" where "test" = 1 limit 999 offset 10 - SQLITE_ERROR: no such table: users');
+                done();
+            });
+        });
+
+        it('should use withRelated if the with parameter is defined', (done) => {
+            userModel.findAllWithPagination(10, 999, { }, 'sessions')
+            .catch((err) => {
+                expect(err.message).to.equal('select "users".* from "users" limit 999 offset 10 - SQLITE_ERROR: no such table: users');
                 done();
             });
         });
@@ -198,6 +222,14 @@ describe('Model', () => {
                 done();
             });
         });
+
+        it('should use withRelated if the with parameter is defined', (done) => {
+            userSessionModel.findAllByUserIdWithPagination(666, 10, 999, {}, 'sessions')
+            .catch((err) => {
+                expect(err.message).to.equal('select "user_sessions".* from "user_sessions" where "user_id" = 666 limit 999 offset 10 - SQLITE_ERROR: no such table: user_sessions');
+                done();
+            });
+        });
     });
 
     describe('findOneById', () => {
@@ -221,6 +253,14 @@ describe('Model', () => {
             userSessionModel.findOneByIdAndUserId(693, 666)
             .then((result) => {
                 expect(result).to.equal('fetch_called_with_{"id":693,"user_id":666}');
+                done();
+            });
+        });
+
+        it('should use withRelated if the with parameter is defined', (done) => {
+            userSessionModel.findOneById(693, 'sessions')
+            .then((result) => {
+                expect(result).to.equal('fetch_called_with_{"id":693}');
                 done();
             });
         });

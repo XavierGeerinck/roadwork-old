@@ -9,23 +9,24 @@ module.exports = (routeGenerator, model, routeOptions) => {
             accessScope = routeGenerator.getAccessScope(request.auth.credentials.get('scope'), routeOptions.allowedRoles);
         }
 
-        let queryParams = routeGenerator.processQueryParams(request.query);
+        let filters = routeGenerator.processQueryParams(request.query);
+        let withRelated = (request.query) ? request.query.with : null;
         let promise = null;
 
         // Process the access scope
         switch (accessScope) {
             case accessScopesEnum.ALL_ACCESS:
-                promise = model.findAll(queryParams);
+                promise = model.findAll(filters, withRelated);
                 break;
             case accessScopesEnum.OWNER_ACCESS:
-                promise = model.findAllByUserId(request.auth.credentials.get('id'), queryParams);
+                promise = model.findAllByUserId(request.auth.credentials.get('id'), filters, withRelated);
                 break;
             case accessScopesEnum.NO_ACCESS:
                 promise = Promise.resolve(Boom.unauthorized());
                 break;
             // The default is that we have the ALL_ACCESS scope
             default:
-                promise = model.findAll();
+                promise = model.findAll(filters, withRelated);
         }
 
         // Handle the reply

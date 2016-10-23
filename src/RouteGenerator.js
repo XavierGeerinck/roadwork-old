@@ -37,6 +37,7 @@ class RouteGenerator {
         delete temp.access_token; // Do not allow the access token in here
         delete temp.token;
         delete temp.limit; // Limit is system specified
+        delete temp.with; // With is system specified for relation handling
 
         return temp;
     }

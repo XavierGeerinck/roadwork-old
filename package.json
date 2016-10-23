@@ -36,7 +36,7 @@
     "sinon": "^1.17.5"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -c -L -I __core-js_shared__",
+    "test": "lab -a code -t 95 -c -L -I __core-js_shared__",
     "test-cov-html": "lab -a code -r html -o coverage.html -I '__core-js_shared__'"
   },
   "main": "index.js"
